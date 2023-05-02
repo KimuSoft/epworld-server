@@ -1,0 +1,23 @@
+version: "3"
+services:
+  epworld:
+    ports:
+      - "127.0.0.1:3000:3000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    ports:
+      - "5432:2345"
+    volumes:
+      - pg-data:/data/db
+    environment:
+      - POSTGRES_PASSWORD=passworld
+      - POSTGRES_DB=epworld
+
+volumes:
+  pg-data:
