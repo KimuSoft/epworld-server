@@ -7,7 +7,6 @@
 ### TypeORM 마이그레이션
 
 ```shell
-cd server
 yarn build
 yarn typeorm migration:generate src/migrations/init -d datasource.js
 yarn build
