@@ -20,7 +20,8 @@ export class FishService {
     return this.fishRepository.save(fish);
   }
 
-  async findOne(id: string, relations: string[] = []) {
+  async findById(id: string, relations: string[] = []) {
+    console.log(relations);
     return this.fishRepository.findOne({
       where: { id },
       relations,

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Place } from "../place/place.entity";
+import { Place } from "../places/place.entity";
 
 @Entity()
 export class Facility {

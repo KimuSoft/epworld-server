@@ -1,48 +1,58 @@
 import {
+  Body,
   Controller,
-  ForbiddenException,
+  Delete,
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Query,
   Request,
 } from "@nestjs/common";
 import { PlacesService } from "./places.service";
-import { UsersService } from "../users/users.service";
 
-@Controller("places")
+@Controller("api/places")
 export class PlacesController {
-  constructor(
-    private readonly placeService: PlacesService,
-    private readonly usersService: UsersService
-  ) {}
+  constructor(private readonly placeService: PlacesService) {}
+
+  // 낚시터 생성
+  @Post()
+  async createPlace(
+    @Request() req,
+    @Body("name") name: string,
+    @Body("owner") ownerId: string,
+    @Body("description") description?: string,
+    @Body("id") id?: string
+  ) {
+    const place = await this.placeService.create(
+      name,
+      ownerId,
+      description,
+      id
+    );
+    if (!place) throw new NotFoundException("Place not found");
+
+    return place;
+  }
 
   // 낚시터 정보 불러오기
   @Get(":id")
   async getPlace(@Request() req, @Param("id") id: string) {
-    const place = await this.placeService.findOne(id);
+    const place = await this.placeService.findById(id);
     if (!place) throw new NotFoundException("Place not found");
 
     return this.placeService.getPlaceJSON(place);
   }
 
-  // 낚시터 생성
-  @Post("create")
-  async createPlace(
+  @Patch(":id")
+  async updatePlace(
     @Request() req,
-    @Query("name") name: string,
-    @Query("owner") ownerId: string,
-    @Query("description") description?: string,
-    @Query("id") id?: string
+    @Param("id") id: string,
+    @Body("name") name: string,
+    @Body("description") description: string
   ) {
-    const owner = await this.usersService.findOne(ownerId);
-    if (!owner) throw new NotFoundException("Owner not found");
-
-    const place = await this.placeService.create(name, owner, description, id);
-    if (!place) throw new NotFoundException("Place not found");
-
-    return this.placeService.getPlaceJSON(place);
+    return this.placeService.update(id, name, description);
   }
 
   // 낚시터 매입
@@ -52,33 +62,29 @@ export class PlacesController {
     @Param("id") id: string,
     @Query("amount") amount: number
   ) {
-    const place = await this.placeService.findOne(id);
-    if (!place) throw new NotFoundException("Place not found");
+    return this.placeService.buy(req.user.id, id, amount);
+  }
 
-    const newOwner = await this.usersService.findOne(req.user.id);
-    if (!newOwner) throw new NotFoundException("User not found");
+  @Post(":id/facilities")
+  async buildFacility(
+    @Request() req,
+    @Param("id") id: string,
+    @Body("facility_id") facilityId: string
+  ) {
+    return this.placeService.build(id, facilityId);
+  }
 
-    if (amount <= 0) throw new ForbiddenException({ error: "InvalidAmount" });
+  @Get(":id/facilities")
+  async getFacilities(@Request() req, @Param("id") id: string) {
+    return this.placeService.getFacilities(id);
+  }
 
-    if (newOwner.money < amount)
-      throw new ForbiddenException({ error: "NotEnoughMoney" });
-
-    const oldOwner = place.owner;
-    if (oldOwner.id === newOwner.id) {
-      newOwner.money -= amount;
-      place.price += amount;
-
-      await this.usersService.save(newOwner);
-      await this.placeService.save(place);
-    } else {
-      oldOwner.money += place.price;
-      newOwner.money -= amount;
-      place.owner = newOwner;
-      place.price = amount;
-
-      await this.usersService.save(oldOwner);
-      await this.usersService.save(newOwner);
-      await this.placeService.save(place);
-    }
+  @Delete(":id/facilities/:facility_id")
+  async destroyFacility(
+    @Request() req,
+    @Param("id") id: string,
+    @Param("facility_id") facilityId: string
+  ) {
+    return this.placeService.destroyFacility(id, facilityId);
   }
 }

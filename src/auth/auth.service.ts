@@ -17,7 +17,7 @@ export class AuthService {
     avatar: string
   ): Promise<User> {
     const userId = `${accountType}:${id}`;
-    const user = await this.usersService.findOne(userId);
+    const user = await this.usersService.findById(userId);
     if (user) return this.usersService.update(userId, username, avatar);
 
     // 처음 가입한 유저의 경우 새로 생성

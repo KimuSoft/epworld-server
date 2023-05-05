@@ -10,8 +10,8 @@ export class UsersService {
     private usersRepository: Repository<User>
   ) {}
 
-  async findOne(id: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
+  async findById(id: string, relations: string[] = []): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id }, relations });
   }
 
   async update(id: string, username: string, avatar: string): Promise<User> {
@@ -34,13 +34,19 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async getJSON(user: User) {
-    return {
-      id: user.id,
-      username: user.username,
-      avatar: user.avatar,
-      money: user.money,
-      exp: user.exp,
-    };
+  async getUserFish(id: string, getDeleted = false) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ["fish"],
+    });
+    return getDeleted ? user.fish : user.fish.filter((f) => !f.deleted);
+  }
+
+  async getUserPlaces(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ["places"],
+    });
+    return user.places;
   }
 }

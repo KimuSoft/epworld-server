@@ -6,7 +6,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Place } from "../place/place.entity";
+import { Place } from "../places/place.entity";
 import { Fish } from "../fish/fish.entity";
 
 @Entity()
@@ -27,7 +27,7 @@ export class User {
   exp: number;
 
   @OneToMany(() => Place, (place) => place.owner)
-  ownPlaces: Place[];
+  places: Place[];
 
   @OneToMany(() => Fish, (fish) => fish.owner)
   fish: Fish[];
@@ -37,4 +37,14 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  toJSON() {
+    return {
+      id: this.id,
+      username: this.username,
+      avatar: this.avatar,
+      money: this.money,
+      exp: this.exp,
+    };
+  }
 }

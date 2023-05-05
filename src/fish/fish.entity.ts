@@ -19,6 +19,9 @@ export class Fish {
   @Column({ default: false })
   deleted: boolean;
 
+  @Column()
+  length: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

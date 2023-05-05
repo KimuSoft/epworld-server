@@ -4,16 +4,17 @@ import {
   Entity,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "../users/user.entity";
 import { Biome, Season } from "../types";
 import { Facility } from "../facilities/facility.entity";
+import { v4 } from "uuid";
 
 @Entity()
 export class Place {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn({ default: v4() })
   id: string;
 
   // 낚시터 이름
@@ -55,7 +56,7 @@ export class Place {
   })
   facilities: Facility[];
 
-  @OneToOne(() => User, (user) => user.ownPlaces)
+  @OneToOne(() => User, (user) => user.places)
   owner: User;
 
   @CreateDateColumn()
@@ -63,4 +64,19 @@ export class Place {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      cleans: this.cleans,
+      exp: this.exp,
+      capital: this.capital,
+      season: this.season,
+      biome: this.biome,
+      price: this.price,
+      fee: this.fee,
+    };
+  }
 }

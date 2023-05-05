@@ -1,5 +1,5 @@
-const { DataSource } = require("typeorm")
-require("dotenv").config()
+const { DataSource } = require("typeorm");
+require("dotenv").config();
 
 module.exports.AppDataSource = new DataSource({
   type: "postgres",
@@ -9,4 +9,4 @@ module.exports.AppDataSource = new DataSource({
   // cli: {
   //   migrationsDir: "src/migrations",
   // },
-})
+});
