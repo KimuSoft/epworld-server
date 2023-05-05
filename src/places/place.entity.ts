@@ -11,11 +11,13 @@ import { User } from "../users/user.entity";
 import { Biome, Season } from "../types";
 import { Facility } from "../facilities/facility.entity";
 import { v4 } from "uuid";
+import { pmfChoice } from "../utils/random";
+import * as _ from "lodash";
 
 @Entity()
 export class Place {
-  @PrimaryColumn({ default: v4() })
-  id: string;
+  @PrimaryColumn()
+  id: string = v4();
 
   // 낚시터 이름
   @Column()
@@ -37,11 +39,11 @@ export class Place {
 
   // 계절
   @Column({ default: Season.Spring })
-  season: Season;
+  season: Season = pickSeason();
 
   // 지형
   @Column({ default: Biome.Beach })
-  biome: Biome;
+  biome: Biome = pickBiome();
 
   // 땅값
   @Column({ default: 0 })
@@ -89,4 +91,24 @@ export class Place {
       owner: this.owner?.id || this.owner,
     };
   }
+}
+function pickBiome() {
+  return pmfChoice([
+    {
+      object: Biome.Beach,
+      frequency: 0.4,
+    },
+    {
+      object: Biome.River,
+      frequency: 0.4,
+    },
+    {
+      object: Biome.Lake,
+      frequency: 0.2,
+    },
+  ]).object as number;
+}
+
+function pickSeason() {
+  return _.sample([Season.Spring, Season.Summer, Season.Autumn, Season.Winter]);
 }
