@@ -8,6 +8,7 @@ import * as process from "process";
 import { FacilitiesModule } from "./facilities/facilities.module";
 import { FishModule } from "./fish/fish.module";
 import { PlacesModule } from "./places/places.module";
+import { GameModule } from "./game/game.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PlacesModule } from "./places/places.module";
     PlacesModule,
     FacilitiesModule,
     FishModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],
