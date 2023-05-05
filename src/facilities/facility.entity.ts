@@ -26,4 +26,14 @@ export class Facility {
     onDelete: "CASCADE",
   })
   place: Place;
+
+  toJSON() {
+    return {
+      id: this.id,
+      facilityId: this.facilityId,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      place: this.place?.id || this.place,
+    };
+  }
 }

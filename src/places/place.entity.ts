@@ -2,8 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -51,12 +51,16 @@ export class Place {
   @Column({ default: 5 })
   fee: number;
 
+  // 날씨
+  @Column({ default: 0 })
+  weather: number;
+
   @OneToMany(() => Facility, (facility) => facility.place, {
     cascade: true,
   })
   facilities: Facility[];
 
-  @OneToOne(() => User, (user) => user.places)
+  @ManyToOne(() => User, (user) => user.places)
   owner: User;
 
   @CreateDateColumn()
@@ -67,16 +71,22 @@ export class Place {
 
   toJSON() {
     return {
+      // ID 및 이름 정보
       id: this.id,
       name: this.name,
       description: this.description,
+
+      // 낚시터 게임 정보
       cleans: this.cleans,
       exp: this.exp,
       capital: this.capital,
+      fee: this.fee,
+
       season: this.season,
       biome: this.biome,
-      price: this.price,
-      fee: this.fee,
+
+      // 낚시터 소유 정보
+      owner: this.owner?.id || this.owner,
     };
   }
 }

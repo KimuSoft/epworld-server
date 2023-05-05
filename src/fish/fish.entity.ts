@@ -32,4 +32,16 @@ export class Fish {
     onDelete: "CASCADE",
   })
   owner: User;
+
+  toJSON() {
+    return {
+      id: this.id,
+      fishId: this.fishId,
+      deleted: this.deleted,
+      length: this.length,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      owner: this.owner?.id || this.owner,
+    };
+  }
 }

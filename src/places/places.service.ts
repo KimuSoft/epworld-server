@@ -114,25 +114,4 @@ export class PlacesService {
 
     return this.facilityRepository.remove(facility);
   }
-
-  async getPlaceJSON(place: Place) {
-    return {
-      // ID 및 이름 정보
-      id: place.id,
-      name: place.name,
-      description: place.description,
-
-      // 낚시터 게임 정보
-      cleans: place.cleans,
-      exp: place.exp,
-      capital: place.capital,
-      fee: place.fee,
-
-      season: place.season,
-      biome: place.biome,
-
-      // 낚시터 소유 정보
-      owner: place.owner,
-    };
-  }
 }

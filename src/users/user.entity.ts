@@ -17,13 +17,13 @@ export class User {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ nullable: true })
   avatar: string;
 
-  @Column()
+  @Column({ default: 0 })
   money: number;
 
-  @Column()
+  @Column({ default: 0 })
   exp: number;
 
   @OneToMany(() => Place, (place) => place.owner)
@@ -38,6 +38,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ default: false })
+  admin: boolean;
+
   toJSON() {
     return {
       id: this.id,
@@ -45,6 +48,11 @@ export class User {
       avatar: this.avatar,
       money: this.money,
       exp: this.exp,
+      places: this.places?.map((place) => place.toJSON()) || this.places,
+      fish: this.fish?.map((fish) => fish.toJSON()) || this.fish,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      admin: this.admin,
     };
   }
 }

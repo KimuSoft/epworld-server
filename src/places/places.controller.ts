@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -9,14 +10,17 @@ import {
   Post,
   Query,
   Request,
+  UseGuards,
 } from "@nestjs/common";
 import { PlacesService } from "./places.service";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("api/places")
 export class PlacesController {
   constructor(private readonly placeService: PlacesService) {}
 
   // 낚시터 생성
+  @UseGuards(AuthGuard("jwt"))
   @Post()
   async createPlace(
     @Request() req,
@@ -25,6 +29,9 @@ export class PlacesController {
     @Body("description") description?: string,
     @Body("id") id?: string
   ) {
+    if (!req.user.admin) throw new ForbiddenException("You are not admin");
+    console.log(req.user);
+
     const place = await this.placeService.create(
       name,
       ownerId,
@@ -42,7 +49,7 @@ export class PlacesController {
     const place = await this.placeService.findById(id);
     if (!place) throw new NotFoundException("Place not found");
 
-    return this.placeService.getPlaceJSON(place);
+    return place;
   }
 
   @Patch(":id")
