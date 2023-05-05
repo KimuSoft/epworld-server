@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
+  Post,
   Query,
   Request,
   UseGuards,
@@ -15,6 +17,18 @@ import { UsersService } from "./users.service";
 @Controller("api/users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @UseGuards(AuthGuard("jwt"))
+  @Post(":id")
+  async createUser(
+    @Request() req,
+    @Param("id") id: string,
+    @Body("username") username: string,
+    @Body("avatar") avatar: string
+  ) {
+    if (!req.user.admin) throw new ForbiddenException("You are not admin");
+    return this.usersService.create(id, username, avatar);
+  }
 
   // 토큰으로 세션 정보 얻기
   @UseGuards(AuthGuard("jwt"))
