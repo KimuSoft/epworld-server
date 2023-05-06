@@ -1,6 +1,8 @@
 import { pmfChoice, pmfObject } from "./random";
 import * as _ from "lodash";
-import randomNormal from "random-normal";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const randomNormal = require("random-normal");
+// import randomNormal from "random-normal";
 
 export enum TurnType {
   Normal,
@@ -23,21 +25,20 @@ const timingPmf: pmfObject[] = [
 export const getTurn = (): Turn => {
   const turnType = pmfChoice(timingPmf);
 
-  console.log(randomNormal);
   let text: string;
   let time: number;
   switch (turnType.object) {
     case TurnType.Normal:
       text = _.sample(normalText);
-      time = 2000 * randomNormal({ mean: 1, dev: 1 });
+      time = 3000 * randomNormal({ mean: 1, dev: 0.3 });
       break;
     case TurnType.Fake:
       text = _.sample(fakeText);
-      time = 800 * randomNormal({ mean: 1, dev: 0.2 });
+      time = 1200 * randomNormal({ mean: 1, dev: 0.2 });
       break;
     case TurnType.Timing:
       text = _.sample(timingText);
-      time = 800 * randomNormal({ mean: 1, dev: 0.2 });
+      time = 1200 * randomNormal({ mean: 1, dev: 0.2 });
       break;
   }
 

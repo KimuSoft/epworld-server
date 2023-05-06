@@ -56,8 +56,12 @@ export class GameGateway
       return socket.emit("fishError", "이미 낚시중입니다.");
     }
 
+    // TODO: zod로 스키마 검증
+
     // 요청하는 낚시터가 존재하는지 확인
+    console.log(placeId);
     const place = await this.placesService.findById(placeId);
+    console.log(place);
     if (!place) return socket.emit("fishError", "낚시터가 존재하지 않습니다.");
 
     playingUser.add(socket.id);
@@ -124,6 +128,7 @@ export class GameGateway
 
   @SubscribeMessage("catch")
   async catch(client: Socket) {
+    if (!playingUser.has(client.id)) return;
     console.log("낚시 클릭");
     clickedUser.add(client.id);
   }
