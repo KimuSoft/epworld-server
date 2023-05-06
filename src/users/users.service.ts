@@ -34,12 +34,12 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async getUserFish(id: string, getDeleted = false) {
+  async getUserItems(id: string, getDeleted = false) {
     const user = await this.usersRepository.findOne({
       where: { id },
       relations: ["fish"],
     });
-    return getDeleted ? user.fish : user.fish.filter((f) => !f.deleted);
+    return user.items;
   }
 
   async getUserPlaces(id: string) {

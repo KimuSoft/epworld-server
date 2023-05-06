@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Place } from "../places/place.entity";
-import { Fish } from "../fish/fish.entity";
+import { Item } from "../item/item.entity";
 
 @Entity()
 export class User {
@@ -29,8 +29,8 @@ export class User {
   @OneToMany(() => Place, (place) => place.owner)
   places: Place[];
 
-  @OneToMany(() => Fish, (fish) => fish.owner)
-  fish: Fish[];
+  @OneToMany(() => Item, (item) => item.owner)
+  items: Item[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -49,7 +49,7 @@ export class User {
       money: this.money,
       exp: this.exp,
       places: this.places?.map((place) => place.toJSON()) || this.places,
-      fish: this.fish?.map((fish) => fish.toJSON()) || this.fish,
+      items: this.items?.map((item) => item.toJSON()) || this.items,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       admin: this.admin,

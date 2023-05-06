@@ -16,6 +16,7 @@ import { JwtStrategy } from "./jwt.strategy";
       signOptions: { expiresIn: "1d" },
     }),
   ],
+  exports: [AuthService],
   providers: [AuthService, DiscordStrategy, JwtStrategy],
   controllers: [AuthController],
 })

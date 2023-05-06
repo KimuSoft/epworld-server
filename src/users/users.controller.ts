@@ -64,7 +64,7 @@ export class UsersController {
     @Param("id") id: string,
     @Query("get_deleted") getDeleted = false
   ) {
-    return this.usersService.getUserFish(id, getDeleted);
+    return this.usersService.getUserItems(id, getDeleted);
   }
 
   @Get(":id/places")

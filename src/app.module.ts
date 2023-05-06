@@ -6,9 +6,9 @@ import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
 import * as process from "process";
 import { FacilitiesModule } from "./facilities/facilities.module";
-import { FishModule } from "./fish/fish.module";
 import { PlacesModule } from "./places/places.module";
 import { GameModule } from "./game/game.module";
+import { ItemsModule } from "./item/items.module";
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { GameModule } from "./game/game.module";
     UsersModule,
     PlacesModule,
     FacilitiesModule,
-    FishModule,
+    ItemsModule,
     GameModule,
   ],
   controllers: [AppController],

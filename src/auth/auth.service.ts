@@ -31,5 +31,11 @@ export class AuthService {
     };
   }
 
-  async logout() {}
+  async logout() {
+    return;
+  }
+
+  async verify(token: string) {
+    return this.jwtService.verifyAsync(token);
+  }
 }
