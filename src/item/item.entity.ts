@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,15 +10,12 @@ import {
 import { User } from "../users/user.entity";
 
 @Entity()
-export class Fish {
+export class Item {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
-  fishId: string;
-
-  @Column({ default: false })
-  deleted: boolean;
+  itemId: string;
 
   @Column()
   length: number;
@@ -28,7 +26,10 @@ export class Fish {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.fish, {
+  @DeleteDateColumn()
+  deletedAt: Date | null;
+
+  @ManyToOne(() => User, (user) => user.items, {
     onDelete: "CASCADE",
   })
   owner: User;
@@ -36,11 +37,11 @@ export class Fish {
   toJSON() {
     return {
       id: this.id,
-      fishId: this.fishId,
-      deleted: this.deleted,
+      itemId: this.itemId,
       length: this.length,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt,
       owner: this.owner?.id || this.owner,
     };
   }
