@@ -1128,6 +1128,11 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
   integrity sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
 
+"@types/random-normal@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/random-normal/-/random-normal-1.0.1.tgz#bd997f7e44192fb9bf20641648662c5b1a573ae4"
+  integrity sha512-l9/NTjcz3gK0YV/qrAgV2UwHN9qwISEIDN9MpBrEBYjII6lNsO5Viw/rznd47vR2WtpT4SFX4dlY69AwLcWtKQ==
+
 "@types/range-parser@*":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
@@ -4325,6 +4330,13 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
+
+random-normal@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/random-normal/-/random-normal-1.0.0.tgz#daa0b5fa4caeb15968178338f2ac52e63a6e4689"
+  integrity sha512-aursKdfpfdHPpnabQVx6OUiuFpaBLl+6A/8k9u+ApMspjW2EIhZFjX8hNH9LZjpDyo0aTDfBCIgLWQXrsRhd2Q==
+  dependencies:
+    object-assign "^4.0.1"
 
 randombytes@^2.1.0:
   version "2.1.0"
