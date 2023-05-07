@@ -24,11 +24,9 @@ export class AuthService {
     return this.usersService.create(userId, username, avatar);
   }
 
-  async login(user: User) {
-    const payload = { id: user.id };
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-    };
+  async login(user: User, isBot = false) {
+    const payload = { id: user.id, isBot };
+    return { accessToken: await this.jwtService.signAsync(payload) };
   }
 
   async logout() {
