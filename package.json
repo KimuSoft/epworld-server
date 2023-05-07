@@ -32,6 +32,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "@nestjs/websockets": "^9.4.0",
     "lodash": "^4.17.21",
+    "nestjs-zod": "^2.3.2",
     "passport": "^0.6.0",
     "passport-discord": "^0.1.4",
     "passport-jwt": "^4.0.1",
@@ -41,7 +42,8 @@
     "rxjs": "^7.2.0",
     "socket.io": "^4.6.1",
     "typeorm": "^0.3.11",
-    "uuidv4": "^6.2.13"
+    "uuidv4": "^6.2.13",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

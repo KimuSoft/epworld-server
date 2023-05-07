@@ -9,6 +9,9 @@ import { FacilitiesModule } from "./facilities/facilities.module";
 import { PlacesModule } from "./places/places.module";
 import { GameModule } from "./game/game.module";
 import { ItemsModule } from "./item/items.module";
+import { FacilitiesService } from "./facilities/facilities.service";
+import { APP_PIPE } from "@nestjs/core";
+import { ZodValidationPipe } from "nestjs-zod";
 
 @Module({
   imports: [
@@ -25,6 +28,12 @@ import { ItemsModule } from "./item/items.module";
     GameModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
+  ],
 })
 export class AppModule {}

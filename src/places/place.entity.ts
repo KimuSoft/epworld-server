@@ -13,6 +13,7 @@ import { Facility } from "../facilities/facility.entity";
 import { v4 } from "uuid";
 import { pmfChoice } from "../utils/random";
 import * as _ from "lodash";
+import { z } from "zod";
 
 @Entity()
 export class Place {
@@ -112,3 +113,20 @@ function pickBiome() {
 function pickSeason() {
   return _.sample([Season.Spring, Season.Summer, Season.Autumn, Season.Winter]);
 }
+
+export const placeSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  cleans: z.number(),
+  exp: z.number(),
+  capital: z.number(),
+  description: z.string(),
+  season: z.nativeEnum(Season),
+  biome: z.nativeEnum(Biome),
+  price: z.number(),
+  fee: z.number(),
+  // weather: z.nativeEnum(Wheather),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  owner: z.string().uuid(),
+});

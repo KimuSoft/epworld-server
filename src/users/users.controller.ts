@@ -13,18 +13,19 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { UsersService } from "./users.service";
+import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto";
 
 @Controller("api/users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // 관리자가 직접 계정을 생성하는 경우에만 사용함. (일반적으로는 login을 통해 계정 생성)
   @UseGuards(AuthGuard("jwt"))
   @Post(":id")
   async createUser(
     @Request() req,
-    @Param("id") id: string,
-    @Body("username") username: string,
-    @Body("avatar") avatar: string
+    @Param() { id }: UsersParamDto,
+    @Body() { username, avatar }: CreateUserDto
   ) {
     if (!req.user.admin) throw new ForbiddenException("You are not admin");
     return this.usersService.create(id, username, avatar);
@@ -39,7 +40,7 @@ export class UsersController {
 
   // 유저 정보 조회
   @Get(":id")
-  async getUser(@Param("id") id: string) {
+  async getUser(@Param() { id }: UsersParamDto) {
     const user = await this.usersService.findById(id);
     if (!user) throw new NotFoundException("User not found");
 
@@ -49,9 +50,8 @@ export class UsersController {
   // 유저 정보 업데이트
   @Patch(":id")
   async updateUser(
-    @Param("id") id: string,
-    @Body("username") username: string,
-    @Body("avatar") avatar: string
+    @Param() { id }: UsersParamDto,
+    @Body() { username, avatar }: UpdateUserDto
   ) {
     return this.usersService.update(id, username, avatar);
   }
@@ -61,14 +61,14 @@ export class UsersController {
 
   @Get(":id/fish")
   async getUserFish(
-    @Param("id") id: string,
+    @Param() { id }: UsersParamDto,
     @Query("get_deleted") getDeleted = false
   ) {
     return this.usersService.getUserItems(id, getDeleted);
   }
 
   @Get(":id/places")
-  async getUserPlaces(@Param("id") id: string) {
+  async getUserPlaces(@Param() { id }: UsersParamDto) {
     return this.usersService.getUserPlaces(id);
   }
 }

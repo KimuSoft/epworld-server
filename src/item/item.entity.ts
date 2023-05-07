@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "../users/user.entity";
+import { z } from "zod";
 
 @Entity()
 export class Item {
@@ -46,3 +47,13 @@ export class Item {
     };
   }
 }
+
+export const itemSchema = z.object({
+  id: z.string().uuid(),
+  itemId: z.string(),
+  length: z.number().positive(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+  owner: z.string().uuid(),
+});

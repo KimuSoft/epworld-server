@@ -14,6 +14,13 @@ import {
 } from "@nestjs/common";
 import { PlacesService } from "./places.service";
 import { AuthGuard } from "@nestjs/passport";
+import {
+  BuyPlaceDto,
+  CreatePlaceDto,
+  DestroyFacilityParamDto,
+  PlacesParamDto,
+  UpdatePlaceDto,
+} from "./place.dto";
 
 @Controller("api/places")
 export class PlacesController {
@@ -24,28 +31,17 @@ export class PlacesController {
   @Post()
   async createPlace(
     @Request() req,
-    @Body("name") name: string,
-    @Body("owner") ownerId: string,
-    @Body("description") description?: string,
-    @Body("id") id?: string
+    @Body() { id, name, ownerId, description }: CreatePlaceDto
   ) {
     if (!req.user.admin) throw new ForbiddenException("You are not admin");
     console.log(req.user);
 
-    const place = await this.placeService.create(
-      name,
-      ownerId,
-      description,
-      id
-    );
-    if (!place) throw new NotFoundException("Place not found");
-
-    return place;
+    return this.placeService.create(name, ownerId, description, id);
   }
 
   // 낚시터 정보 불러오기
   @Get(":id")
-  async getPlace(@Request() req, @Param("id") id: string) {
+  async getPlace(@Request() req, @Param() { id }: PlacesParamDto) {
     const place = await this.placeService.findById(id);
     if (!place) throw new NotFoundException("Place not found");
 
@@ -55,9 +51,8 @@ export class PlacesController {
   @Patch(":id")
   async updatePlace(
     @Request() req,
-    @Param("id") id: string,
-    @Body("name") name: string,
-    @Body("description") description: string
+    @Param() { id }: PlacesParamDto,
+    @Body() { name, description }: UpdatePlaceDto
   ) {
     return this.placeService.update(id, name, description);
   }
@@ -66,31 +61,38 @@ export class PlacesController {
   @Post(":id/buy")
   async buyPlace(
     @Request() req,
-    @Param("id") id: string,
-    @Query("amount") amount: number
+    @Param() { id }: PlacesParamDto,
+    @Query() { userId, amount }: BuyPlaceDto
   ) {
-    return this.placeService.buy(req.user.id, id, amount);
+    let buyerId = req.user.id;
+
+    // 어드민만 구매자의 ID를 직접 설정할 수 있음. (일반 유저는 자신의 ID로만 가능)
+    if (userId && req.user.id !== userId) {
+      if (!req.user.admin) throw new ForbiddenException("You are not admin");
+      buyerId = userId;
+    }
+
+    return this.placeService.buy(buyerId, id, amount);
   }
 
   @Post(":id/facilities")
   async buildFacility(
     @Request() req,
-    @Param("id") id: string,
+    @Param() { id }: PlacesParamDto,
     @Body("facility_id") facilityId: string
   ) {
     return this.placeService.build(id, facilityId);
   }
 
   @Get(":id/facilities")
-  async getFacilities(@Request() req, @Param("id") id: string) {
+  async getFacilities(@Request() req, @Param() { id }: PlacesParamDto) {
     return this.placeService.getFacilities(id);
   }
 
-  @Delete(":id/facilities/:facility_id")
+  @Delete(":id/facilities/:facilityId")
   async destroyFacility(
     @Request() req,
-    @Param("id") id: string,
-    @Param("facility_id") facilityId: string
+    @Param() { id, facilityId }: DestroyFacilityParamDto
   ) {
     return this.placeService.destroyFacility(id, facilityId);
   }

@@ -1,5 +1,7 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Get, Param, Query, UsePipes } from "@nestjs/common";
 import { FacilitiesService } from "./facilities.service";
+import { ZodValidationPipe } from "nestjs-zod";
+import { FacilitiesParamDto } from "./facilities.dto";
 
 // 임시 데이터셋 이후에 따로 빼야 함.
 const FacilityData = [{ id: "PAR", name: "링파링", description: "링링파파링" }];
@@ -10,7 +12,7 @@ export class FacilitiesController {
 
   // 시설 인스턴스 조회
   @Get(":id")
-  async getFacility(@Param("id") id: string) {
+  async getFacility(@Param() { id }: FacilitiesParamDto) {
     return this.facilitiesService.findById(id);
   }
 

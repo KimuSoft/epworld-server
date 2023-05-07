@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Place } from "../places/place.entity";
+import { z } from "zod";
 
 @Entity()
 export class Facility {
@@ -37,3 +38,11 @@ export class Facility {
     };
   }
 }
+
+export const facilitySchema = z.object({
+  id: z.string().uuid(),
+  facilityId: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  place: z.string().uuid(),
+});

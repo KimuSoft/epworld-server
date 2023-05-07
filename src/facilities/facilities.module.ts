@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { FacilitiesController } from "./facilities.controller";
 import { FacilitiesService } from "./facilities.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "../users/user.entity";
 import { Facility } from "./facility.entity";
 
 @Module({
