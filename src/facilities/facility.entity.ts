@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { Place } from "../places/place.entity";
 import { z } from "zod";
+import { createZodDto } from "nestjs-zod";
 
 @Entity()
 export class Facility {
@@ -46,3 +47,5 @@ export const facilitySchema = z.object({
   updatedAt: z.date(),
   place: z.string().uuid(),
 });
+
+export class FacilitiesDto extends createZodDto(facilitySchema) {}

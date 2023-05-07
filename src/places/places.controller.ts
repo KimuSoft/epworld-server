@@ -21,7 +21,12 @@ import {
   PlacesParamDto,
   UpdatePlaceDto,
 } from "./place.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  FacilitiesDto,
+  Facility,
+  facilitySchema,
+} from "../facilities/facility.entity";
 
 @ApiTags("Places")
 @Controller("api/places")
@@ -109,6 +114,7 @@ export class PlacesController {
     summary: "낚시터 시설 조회",
     description: "해당 낚시터에 건설된 시설 목록을 불러온다.",
   })
+  @ApiCreatedResponse({ status: 201, type: [FacilitiesDto] })
   @Get(":id/facilities")
   async getFacilities(@Request() req, @Param() { id }: PlacesParamDto) {
     return this.placeService.getFacilities(id);
@@ -118,6 +124,7 @@ export class PlacesController {
     summary: "낚시터 시설 철거",
     description: "해당 낚시터에 건설된 시설의 ID로 시설을 철거할 수 있다.",
   })
+  @ApiCreatedResponse({ status: 201, type: FacilitiesDto })
   @Delete(":id/facilities/:facilityId")
   async destroyFacility(
     @Request() req,
