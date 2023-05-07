@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "nestjs-zod/z";
 import { createZodDto } from "nestjs-zod";
 
 // `:id`에 대한 Zod 스키마

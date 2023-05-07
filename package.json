@@ -1,6 +1,6 @@
 {
   "name": "ep-server",
-  "version": "0.0",
+  "version": "0.1",
   "description": "이프의 세상을 구현하는 중앙 서버",
   "author": "KimuSoft",
   "private": true,
@@ -29,6 +29,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-socket.io": "^9.4.0",
     "@nestjs/serve-static": "^3.0.0",
+    "@nestjs/swagger": "^6.3.0",
     "@nestjs/typeorm": "^9.0.1",
     "@nestjs/websockets": "^9.4.0",
     "lodash": "^4.17.21",

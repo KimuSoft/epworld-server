@@ -13,11 +13,17 @@ import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
 import { Response } from "express";
 import { LoginDiscordBotDto } from "./auth.dto";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 
+@ApiTags("Auth")
 @Controller("api/auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({
+    summary: "디스코드로 로그인",
+    description: "디스코드 계정으로 이프에 로그인할 수 있다.",
+  })
   @UseGuards(AuthGuard("discord"))
   @Get("login/discord")
   @Redirect()
@@ -26,7 +32,11 @@ export class AuthController {
     return { url: "/auth/callback?token=" + loginResult.accessToken };
   }
 
-  // 공식 디스코드 봇만 사용 가능: 봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 토큰을 발급해 줌.
+  @ApiOperation({
+    summary: "무검증 디스코드 계정 로그인 (공식 디스코드 봇 전용)",
+    description:
+      "봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 토큰을 발급해 준다.",
+  })
   @UseGuards(AuthGuard("jwt"))
   @Post("login/discord/bot")
   async loginDiscordBot(
