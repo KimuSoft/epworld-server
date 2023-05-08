@@ -14,7 +14,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { UsersService } from "./users.service";
 import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -53,6 +53,7 @@ export class UsersController {
     description: "해당 ID의 유저 정보를 불러온다.",
   })
   @Get(":id")
+  @ApiParam({ name: "id", description: "유저의 ID", type: "string" })
   async getUser(@Param() { id }: UsersParamDto) {
     const user = await this.usersService.findById(id);
     if (!user) throw new NotFoundException("User not found");

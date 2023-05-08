@@ -43,6 +43,9 @@ export class OAuthService {
   }
 
   async getToken(oauthClient: OAuthClient) {
-    await this.authService.sign({ id: oauthClient.id, isOAuth: true });
+    return this.authService.sign({
+      id: oauthClient.id,
+      clientId: oauthClient.id,
+    });
   }
 }

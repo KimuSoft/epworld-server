@@ -3,7 +3,6 @@ import {
   Get,
   UseGuards,
   Request,
-  Res,
   Redirect,
   Post,
   Body,
@@ -12,7 +11,6 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
-import { Response } from "express";
 import { LoginDiscordBotDto } from "./auth.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 
@@ -67,26 +65,6 @@ export class AuthController {
       user,
       ...(await this.authService.login(user, true)),
     };
-  }
-
-  @ApiOperation({
-    summary: "(임시) OAuth 로그인 페이지",
-    description: "서드파티에서 로그인 요청을 할 수 있습니다.",
-  })
-  @UseGuards(AuthGuard("jwt"))
-  @Post("login/oauth")
-  async OAuthLoginPage(
-    @Request() req,
-    @Query()
-    {
-      client_id,
-      redirect_uri,
-    }: {
-      client_id: string;
-      redirect_uri: string;
-    }
-  ) {
-    return `<h1>${req.user.username} 서드파티를 신용하신다면 아래 방식 중 하나를 선택해서 이프에 로그인 해주세요.<h1><a href="/api/login/discord">`;
   }
 
   @ApiOperation({

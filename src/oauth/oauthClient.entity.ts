@@ -17,7 +17,7 @@ export class OAuthClient {
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column("text", { array: true, default: [] })
   redirectUris: string[];
 
   @CreateDateColumn()
