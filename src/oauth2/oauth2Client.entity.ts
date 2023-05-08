@@ -20,6 +20,9 @@ export class OAuth2Client {
   @Column("text", { array: true, default: [] })
   redirectUris: string[];
 
+  @Column()
+  secret: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

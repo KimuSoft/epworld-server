@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { OAuth2Client } from "./oauth2Client.entity";
 import { AuthService } from "../auth/auth.service";
+import crypto from "crypto";
 
 @Injectable()
 export class OAuth2Service {
@@ -21,6 +22,7 @@ export class OAuth2Service {
     client.name = name;
     client.description = description;
     client.redirectUris = redirectUris;
+    client.secret = crypto.randomBytes(16).toString("hex");
 
     return this.itemRepository.save(client);
   }
@@ -42,10 +44,29 @@ export class OAuth2Service {
     return this.itemRepository.findOneBy({ id });
   }
 
-  async getToken(oauthClient: OAuth2Client) {
+  async createToken(userId: string, oauthClientId: string) {
     return this.authService.sign({
-      id: oauthClient.id,
-      clientId: oauthClient.id,
+      id: userId,
+      clientId: oauthClientId,
     });
+  }
+
+  async createCode(oauthClient: OAuth2Client, userId: string) {
+    return this.authService.sign({
+      code: true,
+      clientId: oauthClient.id,
+      userId,
+    });
+  }
+
+  async findClientBySecret(secret: string) {
+    return this.itemRepository.findOneBy({ secret });
+  }
+
+  async verifyCode(code: string) {
+    const payload: { code: boolean; clientId: string; userId: string } =
+      await this.authService.verify(code);
+    if (!payload.code) throw new NotFoundException("Invalid code");
+    return payload;
   }
 }

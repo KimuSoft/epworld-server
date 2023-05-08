@@ -13,7 +13,7 @@ import {
 import { OAuth2Service } from "./oauth2.service";
 import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { OAuth2LoginDto } from "./oauth2.dto";
+import { OAuth2AccessTokenDto, OAuth2LoginDto } from "./oauth2.dto";
 
 @ApiTags("OAuth2")
 @Controller("api/oauth2")
@@ -60,6 +60,33 @@ export class OAuth2Controller {
   }
 
   @ApiOperation({
+    summary: "OAuth2 액세스 토큰 발급",
+    description: "클라이언트 시크릿과 코드를 주면 액세스 토큰을 드립니다.",
+  })
+  @Post("access_token")
+  async OAuth2AccessToken(
+    @Body()
+    { code, secret }: OAuth2AccessTokenDto
+  ) {
+    const oauthClient = await this.oauthService.findClientBySecret(secret);
+    if (!oauthClient) throw new ForbiddenException("Invalid client secret");
+
+    const oauthCode = await this.oauthService.verifyCode(code);
+
+    if (!oauthCode) throw new ForbiddenException("Invalid code");
+
+    if (oauthCode.clientId !== oauthClient.id)
+      throw new ForbiddenException("Invalid code");
+
+    const oauthToken = await this.oauthService.createToken(
+      oauthCode.userId,
+      oauthClient.id
+    );
+
+    return { userId: oauthCode.userId, token: oauthToken };
+  }
+
+  @ApiOperation({
     summary: "OAuth2 로그인 페이지",
     description: "서드파티에서 로그인 요청을 할 수 있습니다.",
   })
@@ -87,8 +114,11 @@ export class OAuth2Controller {
     if (!oauthClient.redirectUris.includes(redirect_uri))
       throw new ForbiddenException("Invalid redirect uri");
 
-    const oauthToken = await this.oauthService.getToken(oauthClient);
+    const oauthCode = await this.oauthService.createCode(
+      oauthClient,
+      req.user.id
+    );
 
-    return `<h1>${req.user.username}님! ${oauthClient.name} 서드파티를 신용하신다면 아래 버튼을 눌러 주세요!<h1><a href="${redirect_uri}?token=${oauthToken}">호애앵 믿어요!!!</a>`;
+    return `<h1>${req.user.username}님! ${oauthClient.name} 서드파티를 신용하신다면 아래 버튼을 눌러 주세요!<h1><a href="${redirect_uri}?code=${oauthCode}">호애앵 믿어요!!!</a>`;
   }
 }
