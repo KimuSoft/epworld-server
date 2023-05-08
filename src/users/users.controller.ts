@@ -28,6 +28,7 @@ export class UsersController {
   })
   @UseGuards(AuthGuard("jwt"))
   @Post(":id")
+  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async createUser(
     @Request() req,
     @Param() { id }: UsersParamDto,
@@ -53,7 +54,7 @@ export class UsersController {
     description: "해당 ID의 유저 정보를 불러온다.",
   })
   @Get(":id")
-  @ApiParam({ name: "id", description: "유저의 ID", type: "string" })
+  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUser(@Param() { id }: UsersParamDto) {
     const user = await this.usersService.findById(id);
     if (!user) throw new NotFoundException("User not found");
@@ -66,6 +67,7 @@ export class UsersController {
     description: "해당 ID의 유저 정보를 수정한다. 본인 또는 관리자만 가능하다.",
   })
   @Patch(":id")
+  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async updateUser(
     @Param() { id }: UsersParamDto,
     @Body() { username, avatar }: UpdateUserDto
@@ -81,6 +83,7 @@ export class UsersController {
     description: "유저가 지금까지 낚았던 물고기 정보를 불러온다.",
   })
   @Get(":id/fish")
+  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUserFish(
     @Param() { id }: UsersParamDto,
     @Query("get_deleted") getDeleted = false
@@ -93,6 +96,7 @@ export class UsersController {
     description: "유저가 보유한 낚시터들의 정보를 불러온다.",
   })
   @Get(":id/places")
+  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUserPlaces(@Param() { id }: UsersParamDto) {
     return this.usersService.getUserPlaces(id);
   }

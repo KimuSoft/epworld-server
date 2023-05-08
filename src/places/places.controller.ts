@@ -20,7 +20,12 @@ import {
   PlacesParamDto,
   UpdatePlaceDto,
 } from "./place.dto";
-import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from "@nestjs/swagger";
 import { FacilitiesDto } from "../facilities/facility.entity";
 
 @ApiTags("Places")
@@ -49,6 +54,7 @@ export class PlacesController {
     description: "낚시터 ID로 해당 낚시터의 정보를 불러온다.",
   })
   @Get(":id")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async getPlace(@Request() req, @Param() { id }: PlacesParamDto) {
     const place = await this.placeService.findById(id);
     if (!place) throw new NotFoundException("Place not found");
@@ -62,6 +68,7 @@ export class PlacesController {
       "낚시터의 정보를 수정한다. 일부 정보는 관리자 권한이 있어야 수정할 수 있다.",
   })
   @Patch(":id")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async updatePlace(
     @Request() req,
     @Param() { id }: PlacesParamDto,
@@ -76,6 +83,7 @@ export class PlacesController {
       "낚시터를 매입한다. 구매자의 ID를 넣지 않을 경우 본인을 구매자로 자동 설정한다.",
   })
   @Post(":id/buy")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async buyPlace(
     @Request() req,
     @Param() { id }: PlacesParamDto,
@@ -97,6 +105,7 @@ export class PlacesController {
     description: "해당 ID 종류에 해당하는 시설을 낚시터에 건설한다.",
   })
   @Post(":id/facilities")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async buildFacility(
     @Request() req,
     @Param() { id }: PlacesParamDto,
@@ -111,6 +120,7 @@ export class PlacesController {
   })
   @ApiCreatedResponse({ status: 201, type: [FacilitiesDto] })
   @Get(":id/facilities")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async getFacilities(@Request() req, @Param() { id }: PlacesParamDto) {
     return this.placeService.getFacilities(id);
   }
@@ -121,6 +131,12 @@ export class PlacesController {
   })
   @ApiCreatedResponse({ status: 201, type: FacilitiesDto })
   @Delete(":id/facilities/:facilityId")
+  @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
+  @ApiParam({
+    name: "facilityId",
+    description: "건설된 시설 ID",
+    type: "string",
+  })
   async destroyFacility(
     @Request() req,
     @Param() { id, facilityId }: DestroyFacilityParamDto
