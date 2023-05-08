@@ -8,6 +8,7 @@ import {
   Post,
   Body,
   ForbiddenException,
+  Query,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
@@ -27,19 +28,75 @@ export class AuthController {
   @UseGuards(AuthGuard("discord"))
   @Get("login/discord")
   @Redirect()
-  async loginDiscord(@Request() req, @Res() res: Response) {
+  async loginDiscord(
+    @Request() req,
+    @Query("redirect_uri") redirectUri?: string
+  ) {
+    if (!req.user.admin && redirectUri && !redirectUri.startsWith("/"))
+      throw new ForbiddenException("머하새오");
+
     const loginResult = await this.authService.login(req.user);
-    return { url: "/auth/callback?token=" + loginResult.accessToken };
+    return { url: redirectUri + "?token=" + loginResult.accessToken };
   }
 
   @ApiOperation({
-    summary: "무검증 디스코드 계정 로그인 (공식 디스코드 봇 전용)",
+    summary: "(관리자) 무검증 디스코드 계정 로그인",
     description:
-      "봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 토큰을 발급해 준다.",
+      "공식 디스코드 봇 전용 API로, 봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 액세스 토큰을 발급해 줍니다.",
   })
   @UseGuards(AuthGuard("jwt"))
   @Post("login/discord/bot")
   async loginDiscordBot(
+    @Request() req,
+    @Body()
+    { id, username, avatar }: LoginDiscordBotDto
+  ) {
+    if (!req.user.admin)
+      throw new ForbiddenException(
+        "Only administrators can create accounts without validation."
+      );
+
+    const user = await this.authService.validateUser(
+      "discord",
+      id,
+      username,
+      avatar
+    );
+
+    return {
+      user,
+      ...(await this.authService.login(user, true)),
+    };
+  }
+
+  @ApiOperation({
+    summary: "(임시) OAuth 로그인 페이지",
+    description: "서드파티에서 로그인 요청을 할 수 있습니다.",
+  })
+  @UseGuards(AuthGuard("jwt"))
+  @Post("login/oauth")
+  async OAuthLoginPage(
+    @Request() req,
+    @Query()
+    {
+      client_id,
+      redirect_uri,
+    }: {
+      client_id: string;
+      redirect_uri: string;
+    }
+  ) {
+    return `<h1>${req.user.username} 서드파티를 신용하신다면 아래 방식 중 하나를 선택해서 이프에 로그인 해주세요.<h1><a href="/api/login/discord">`;
+  }
+
+  @ApiOperation({
+    summary: "(관리자) 무검증 마인크래프트 계정 로그인",
+    description:
+      "공식 마인크래프트 서버 전용 API로, 봇에서 넘겨준 마인크래프트 플레이어 ID 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 액세스 토큰을 발급해 줍니다.",
+  })
+  @UseGuards(AuthGuard("jwt"))
+  @Post("login/minecraft/bot")
+  async loginMinecraft(
     @Request() req,
     @Body() { id, username, avatar }: LoginDiscordBotDto
   ) {
@@ -49,7 +106,7 @@ export class AuthController {
       );
 
     const user = await this.authService.validateUser(
-      "discord",
+      "minecraft",
       id,
       username,
       avatar

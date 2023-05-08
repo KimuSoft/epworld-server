@@ -9,9 +9,9 @@ import { FacilitiesModule } from "./facilities/facilities.module";
 import { PlacesModule } from "./places/places.module";
 import { GameModule } from "./game/game.module";
 import { ItemsModule } from "./item/items.module";
-import { FacilitiesService } from "./facilities/facilities.service";
 import { APP_PIPE } from "@nestjs/core";
 import { ZodValidationPipe } from "nestjs-zod";
+import { OAuthModule } from "./oauth/oauth.module";
 
 @Module({
   imports: [
@@ -26,6 +26,7 @@ import { ZodValidationPipe } from "nestjs-zod";
     FacilitiesModule,
     ItemsModule,
     GameModule,
+    OAuthModule,
   ],
   controllers: [AppController],
   providers: [

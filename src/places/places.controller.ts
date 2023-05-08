@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Request,
   UseGuards,
 } from "@nestjs/common";
@@ -22,11 +21,7 @@ import {
   UpdatePlaceDto,
 } from "./place.dto";
 import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
-import {
-  FacilitiesDto,
-  Facility,
-  facilitySchema,
-} from "../facilities/facility.entity";
+import { FacilitiesDto } from "../facilities/facility.entity";
 
 @ApiTags("Places")
 @Controller("api/places")

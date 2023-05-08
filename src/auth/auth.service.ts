@@ -36,4 +36,8 @@ export class AuthService {
   async verify(token: string) {
     return this.jwtService.verifyAsync(token);
   }
+
+  async sign(payload: any) {
+    return this.jwtService.signAsync(payload);
+  }
 }
