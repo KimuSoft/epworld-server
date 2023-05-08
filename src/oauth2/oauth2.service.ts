@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { OAuthClient } from "./oauthClient.entity";
+import { OAuth2Client } from "./oauth2Client.entity";
 import { AuthService } from "../auth/auth.service";
 
 @Injectable()
-export class OAuthService {
+export class OAuth2Service {
   constructor(
-    @InjectRepository(OAuthClient)
-    private itemRepository: Repository<OAuthClient>,
+    @InjectRepository(OAuth2Client)
+    private itemRepository: Repository<OAuth2Client>,
     private authService: AuthService
   ) {}
 
@@ -17,7 +17,7 @@ export class OAuthService {
     description?: string,
     redirectUris?: string[]
   ) {
-    const client = new OAuthClient();
+    const client = new OAuth2Client();
     client.name = name;
     client.description = description;
     client.redirectUris = redirectUris;
@@ -42,7 +42,7 @@ export class OAuthService {
     return this.itemRepository.findOneBy({ id });
   }
 
-  async getToken(oauthClient: OAuthClient) {
+  async getToken(oauthClient: OAuth2Client) {
     return this.authService.sign({
       id: oauthClient.id,
       clientId: oauthClient.id,

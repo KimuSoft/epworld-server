@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 
 @Entity()
-export class OAuthClient {
+export class OAuth2Client {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

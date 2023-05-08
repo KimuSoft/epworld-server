@@ -11,7 +11,7 @@ import { GameModule } from "./game/game.module";
 import { ItemsModule } from "./item/items.module";
 import { APP_PIPE } from "@nestjs/core";
 import { ZodValidationPipe } from "nestjs-zod";
-import { OAuthModule } from "./oauth/oauth.module";
+import { Oauth2Module } from "./oauth2/oauth2.module";
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { OAuthModule } from "./oauth/oauth.module";
     FacilitiesModule,
     ItemsModule,
     GameModule,
-    OAuthModule,
+    Oauth2Module,
   ],
   controllers: [AppController],
   providers: [
