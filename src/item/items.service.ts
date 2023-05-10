@@ -1,18 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "../users/user.entity";
+import { UserEntity } from "../users/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOptionsWhere, Repository } from "typeorm";
-import { Item } from "./item.entity";
+import { ItemEntity } from "./item.entity";
 
 @Injectable()
 export class ItemsService {
   constructor(
-    @InjectRepository(Item)
-    private itemRepository: Repository<Item>
+    @InjectRepository(ItemEntity)
+    private itemRepository: Repository<ItemEntity>
   ) {}
 
-  async create(fishId: string, owner: User, deleted = false): Promise<Item> {
-    const item = new Item();
+  async create(
+    fishId: string,
+    owner: UserEntity,
+    deleted = false
+  ): Promise<ItemEntity> {
+    const item = new ItemEntity();
     item.itemId = fishId;
     item.owner = owner;
     if (deleted) item.deletedAt = new Date();
@@ -28,7 +32,9 @@ export class ItemsService {
     });
   }
 
-  async find(where: FindOptionsWhere<Item> | FindOptionsWhere<Item>[]) {
+  async find(
+    where: FindOptionsWhere<ItemEntity> | FindOptionsWhere<ItemEntity>[]
+  ) {
     return this.itemRepository.find({ where });
   }
 }

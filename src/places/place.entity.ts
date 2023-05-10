@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "../users/user.entity";
+import { UserEntity } from "../users/user.entity";
 import { Biome, Season } from "../types";
 import { Facility } from "../facilities/facility.entity";
 import { v4 } from "uuid";
@@ -15,8 +15,8 @@ import { pmfChoice } from "../utils/random";
 import * as _ from "lodash";
 import { z } from "zod";
 
-@Entity()
-export class Place {
+@Entity("place")
+export class PlaceEntity {
   @PrimaryColumn()
   id: string = v4();
 
@@ -63,8 +63,8 @@ export class Place {
   })
   facilities: Facility[];
 
-  @ManyToOne(() => User, (user) => user.places)
-  owner: User;
+  @ManyToOne(() => UserEntity, (user) => user.places)
+  owner: UserEntity;
 
   @CreateDateColumn()
   createdAt: Date;

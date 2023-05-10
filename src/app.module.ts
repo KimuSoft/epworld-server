@@ -19,6 +19,7 @@ import { Oauth2Module } from "./oauth2/oauth2.module";
       type: "postgres",
       url: process.env.DB_URL,
       autoLoadEntities: true,
+      logging: "all",
     }),
     AuthModule,
     UsersModule,

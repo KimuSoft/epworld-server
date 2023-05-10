@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { OAuth2Client } from "./oauth2Client.entity";
+import { FindManyOptions, Repository } from "typeorm";
+import { OAuth2ClientEntity } from "./oauth2Client.entity";
 import { AuthService } from "../auth/auth.service";
-import crypto from "crypto";
+import * as crypto from "crypto";
 
 @Injectable()
 export class OAuth2Service {
   constructor(
-    @InjectRepository(OAuth2Client)
-    private itemRepository: Repository<OAuth2Client>,
+    @InjectRepository(OAuth2ClientEntity)
+    private oAuth2ClientRepository: Repository<OAuth2ClientEntity>,
     private authService: AuthService
   ) {}
 
@@ -18,13 +18,13 @@ export class OAuth2Service {
     description?: string,
     redirectUris?: string[]
   ) {
-    const client = new OAuth2Client();
+    const client = new OAuth2ClientEntity();
     client.name = name;
     client.description = description;
     client.redirectUris = redirectUris;
     client.secret = crypto.randomBytes(16).toString("hex");
 
-    return this.itemRepository.save(client);
+    return this.oAuth2ClientRepository.save(client);
   }
 
   async updateClient(
@@ -38,10 +38,15 @@ export class OAuth2Service {
     if (description) client.description = description;
     if (redirectUris) client.redirectUris = redirectUris;
 
-    return this.itemRepository.save(client);
+    return this.oAuth2ClientRepository.save(client);
+  }
+
+  async find(options: FindManyOptions<OAuth2ClientEntity> = {}) {
+    return this.oAuth2ClientRepository.find();
   }
   async findClientById(id: string) {
-    return this.itemRepository.findOneBy({ id });
+    console.log(id);
+    return this.oAuth2ClientRepository.findOneBy({ id });
   }
 
   async createToken(userId: string, oauthClientId: string) {
@@ -51,7 +56,7 @@ export class OAuth2Service {
     });
   }
 
-  async createCode(oauthClient: OAuth2Client, userId: string) {
+  async createCode(oauthClient: OAuth2ClientEntity, userId: string) {
     return this.authService.sign({
       code: true,
       clientId: oauthClient.id,
@@ -60,7 +65,7 @@ export class OAuth2Service {
   }
 
   async findClientBySecret(secret: string) {
-    return this.itemRepository.findOneBy({ secret });
+    return this.oAuth2ClientRepository.findOneBy({ secret });
   }
 
   async verifyCode(code: string) {

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Place } from "../places/place.entity";
+import { PlaceEntity } from "../places/place.entity";
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 
@@ -24,10 +24,10 @@ export class Facility {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Place, (place) => place.facilities, {
+  @ManyToOne(() => PlaceEntity, (place) => place.facilities, {
     onDelete: "CASCADE",
   })
-  place: Place;
+  place: PlaceEntity;
 
   toJSON() {
     return {

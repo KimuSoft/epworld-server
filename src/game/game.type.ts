@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
-import { User } from "../users/user.entity";
+import { UserEntity } from "../users/user.entity";
 
 export interface EpSocket extends Socket {
-  user: User;
+  user: UserEntity;
 }
 
 export interface VerifiedData {

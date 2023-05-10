@@ -2,12 +2,12 @@ import { Module } from "@nestjs/common";
 import { PlacesService } from "./places.service";
 import { PlacesController } from "./places.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Place } from "./place.entity";
+import { PlaceEntity } from "./place.entity";
 import { Facility } from "../facilities/facility.entity";
-import { User } from "../users/user.entity";
+import { UserEntity } from "../users/user.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Place, Facility, User])],
+  imports: [TypeOrmModule.forFeature([PlaceEntity, Facility, UserEntity])],
   exports: [PlacesService],
   providers: [PlacesService],
   controllers: [PlacesController],

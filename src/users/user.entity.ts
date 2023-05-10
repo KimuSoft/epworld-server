@@ -6,11 +6,11 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Place } from "../places/place.entity";
-import { Item } from "../item/item.entity";
+import { PlaceEntity } from "../places/place.entity";
+import { ItemEntity } from "../item/item.entity";
 
-@Entity()
-export class User {
+@Entity("user")
+export class UserEntity {
   @PrimaryColumn()
   id: string;
 
@@ -26,11 +26,11 @@ export class User {
   @Column({ default: 0 })
   exp: number;
 
-  @OneToMany(() => Place, (place) => place.owner)
-  places: Place[];
+  @OneToMany(() => PlaceEntity, (place) => place.owner)
+  places: PlaceEntity[];
 
-  @OneToMany(() => Item, (item) => item.owner)
-  items: Item[];
+  @OneToMany(() => ItemEntity, (item) => item.owner)
+  items: ItemEntity[];
 
   @CreateDateColumn()
   createdAt: Date;

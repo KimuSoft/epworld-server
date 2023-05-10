@@ -21,7 +21,7 @@ async function bootstrap() {
     .setDescription("이프를 여행하는 히치하이커를 위한 안내서")
     .setVersion(process.env["npm_package_version"])
     .addBearerAuth(
-      { type: "http", scheme: "bearer", bearerFormat: "Token" },
+      { type: "http", scheme: "bearer", bearerFormat: "JWT", in: "header" },
       "access-token"
     )
     .build();

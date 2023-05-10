@@ -6,8 +6,8 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity()
-export class OAuth2Client {
+@Entity("oauth2_client")
+export class OAuth2ClientEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

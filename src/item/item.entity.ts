@@ -7,11 +7,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "../users/user.entity";
+import { UserEntity } from "../users/user.entity";
 import { z } from "zod";
 
-@Entity()
-export class Item {
+@Entity("item")
+export class ItemEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -30,10 +30,10 @@ export class Item {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @ManyToOne(() => User, (user) => user.items, {
+  @ManyToOne(() => UserEntity, (user) => user.items, {
     onDelete: "CASCADE",
   })
-  owner: User;
+  owner: UserEntity;
 
   toJSON() {
     return {

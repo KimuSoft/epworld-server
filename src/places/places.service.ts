@@ -5,23 +5,23 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Place } from "./place.entity";
-import { User } from "../users/user.entity";
+import { PlaceEntity } from "./place.entity";
+import { UserEntity } from "../users/user.entity";
 import { Facility } from "../facilities/facility.entity";
 
 @Injectable()
 export class PlacesService {
   constructor(
-    @InjectRepository(Place)
-    private placeRepository: Repository<Place>,
+    @InjectRepository(PlaceEntity)
+    private placeRepository: Repository<PlaceEntity>,
     @InjectRepository(Facility)
     private facilityRepository: Repository<Facility>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>
+    @InjectRepository(UserEntity)
+    private usersRepository: Repository<UserEntity>
   ) {}
 
   async create(name: string, ownerId: string, description = "", id?: string) {
-    const place = new Place();
+    const place = new PlaceEntity();
     if (id) place.id = id;
     place.name = name;
     place.description = description;
@@ -50,7 +50,7 @@ export class PlacesService {
     return this.placeRepository.save(place);
   }
 
-  async save(place: Place) {
+  async save(place: PlaceEntity) {
     return this.placeRepository.save(place);
   }
 

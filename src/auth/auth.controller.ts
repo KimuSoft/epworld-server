@@ -13,6 +13,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
 import { LoginDiscordBotDto } from "./auth.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Auth } from "./auth.decorator";
 
 @ApiTags("Auth")
 @Controller("api/auth")
@@ -42,7 +43,7 @@ export class AuthController {
     description:
       "공식 디스코드 봇 전용 API로, 봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 액세스 토큰을 발급해 줍니다.",
   })
-  @UseGuards(AuthGuard("jwt"))
+  @Auth({ admin: true })
   @Post("login/discord/bot")
   async loginDiscordBot(
     @Request() req,

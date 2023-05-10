@@ -9,12 +9,12 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import { UsersService } from "./users.service";
 import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto";
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { Auth, User } from "../auth/auth.decorator";
+import { UserEntity } from "./user.entity";
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -26,15 +26,15 @@ export class UsersController {
     description:
       "관리자가 직접 계정을 생성하는 경우에만 사용한다. 일반적으로는 login을 통해 계정을 생성하며, 이 방식으로는 액세스 토큰을 얻을 수 없다.",
   })
-  @UseGuards(AuthGuard("jwt"))
+  @Auth()
   @Post(":id")
   @ApiParam({ name: "id", description: "User ID", type: "string" })
   async createUser(
-    @Request() req,
+    @User() user: UserEntity,
     @Param() { id }: UsersParamDto,
     @Body() { username, avatar }: CreateUserDto
   ) {
-    if (!req.user.admin) throw new ForbiddenException("You are not admin");
+    if (!user.admin) throw new ForbiddenException("You are not admin");
     return this.usersService.create(id, username, avatar);
   }
 
@@ -43,7 +43,7 @@ export class UsersController {
     summary: "본인 정보 조회",
     description: "인증된 본인의 유저 정보를 불러온다.",
   })
-  @UseGuards(AuthGuard("jwt"))
+  @Auth()
   @Get("me")
   getMe(@Request() req) {
     return req.user;
@@ -67,6 +67,7 @@ export class UsersController {
     description: "해당 ID의 유저 정보를 수정한다. 본인 또는 관리자만 가능하다.",
   })
   @Patch(":id")
+  @Auth({ admin: true })
   @ApiParam({ name: "id", description: "User ID", type: "string" })
   async updateUser(
     @Param() { id }: UsersParamDto,
