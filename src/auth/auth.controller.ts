@@ -39,6 +39,24 @@ export class AuthController {
   }
 
   @ApiOperation({
+    summary: "키뮤스토리 계정으로 로그인",
+    description: "키뮤스토리 계정으로 이프에 로그인할 수 있다.",
+  })
+  @UseGuards(AuthGuard("kimustory"))
+  @Get("login/kimustory")
+  @Redirect()
+  async loginKimustory(
+    @Request() req,
+    @Query("redirect_uri") redirectUri?: string
+  ) {
+    if (!req.user.admin && redirectUri && !redirectUri.startsWith("/"))
+      throw new ForbiddenException("머하새오");
+
+    const loginResult = await this.authService.login(req.user);
+    return { url: redirectUri + "?token=" + loginResult.accessToken };
+  }
+
+  @ApiOperation({
     summary: "(관리자) 무검증 디스코드 계정 로그인",
     description:
       "공식 디스코드 봇 전용 API로, 봇에서 넘겨준 디스코드 계정 정보를 신뢰하여 디스코드 액세스 토큰 검증 없이 계정을 생성하고 액세스 토큰을 발급해 줍니다.",
