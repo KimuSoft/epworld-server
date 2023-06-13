@@ -14,6 +14,7 @@ export class GameService {
   ) {}
 
   async socketVerify(socket: Socket): Promise<EpSocket | void> {
+    console.log("Verify Socket");
     const token: string = socket.handshake.auth.token;
 
     let res: VerifiedData;

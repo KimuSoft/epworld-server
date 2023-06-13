@@ -47,13 +47,13 @@ export class GameGateway
     socket.emit("messageSubmitted", true);
   }
 
-  @SubscribeMessage("fish")
+  @SubscribeMessage("fish:start")
   async fishStart(_socket: EpSocket, { placeId }: { placeId: string }) {
     const socket = await this.gameService.refreshUserData(_socket);
 
     // 이미 낚시를 진행 중인지 확인
     if (playingUser.has(socket.id)) {
-      return socket.emit("fishError", "이미 낚시중입니다.");
+      return socket.emit("fish:error", "이미 낚시중입니다.");
     }
 
     // TODO: zod로 스키마 검증
@@ -62,12 +62,12 @@ export class GameGateway
     console.log(placeId);
     const place = await this.placesService.findById(placeId);
     console.log(place);
-    if (!place) return socket.emit("fishError", "낚시터가 존재하지 않습니다.");
+    if (!place) return socket.emit("fish:error", "낚시터가 존재하지 않습니다.");
 
     playingUser.add(socket.id);
 
     console.log("낚시 시작");
-    socket.emit("fishStart", {
+    socket.emit("fish:start", {
       player: {
         heart: 100,
         time: 0,
@@ -83,15 +83,16 @@ export class GameGateway
     while (true) {
       // 일정 턴 이상이 지난 경우
       if (time >= 10) {
-        socket.emit("fishTimeOut", "시간 초과... 낚시 종료됨.");
+        socket.emit("fish:timeout", "시간 초과... 낚시 종료됨.");
         playingUser.delete(socket.id);
         return;
       }
 
       const turn = getTurn();
 
-      socket.emit("fish", {
+      socket.emit("fish:event", {
         text: turn.text,
+        emphasize: turn.type !== TurnType.Normal,
         player: { time },
       });
 
@@ -104,7 +105,7 @@ export class GameGateway
 
         // 잘못된 타이밍에 클릭한 경우
         if (turn.type !== TurnType.Timing) {
-          socket.emit("failToCatch", "잘못된 타이밍입니다. 낚시 종료됨.");
+          socket.emit("fish:fail", "잘못된 타이밍입니다. 낚시 종료됨.");
           playingUser.delete(socket.id);
           return;
         }
@@ -116,7 +117,7 @@ export class GameGateway
     }
 
     // 물고기를 잡는 것에 성공한 경우
-    socket.emit("fishCaught", {
+    socket.emit("fish:caught", {
       text: _.sample(["파링", "구이", "로"]) + "을(를) 잡았다!",
       player: { heart: 100, time: 0 },
     });
@@ -126,11 +127,16 @@ export class GameGateway
     console.log("낚시 종료");
   }
 
-  @SubscribeMessage("catch")
+  @SubscribeMessage("fish:catch")
   async catch(client: Socket) {
     if (!playingUser.has(client.id)) return;
     console.log("낚시 클릭");
     clickedUser.add(client.id);
+  }
+
+  @SubscribeMessage("ping")
+  ping(client: Socket) {
+    client.emit("pong");
   }
 
   async sleep(ms: number) {

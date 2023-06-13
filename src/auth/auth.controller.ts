@@ -27,15 +27,14 @@ export class AuthController {
   @UseGuards(AuthGuard("discord"))
   @Get("login/discord")
   @Redirect()
-  async loginDiscord(
-    @Request() req,
-    @Query("redirect_uri") redirectUri?: string
-  ) {
-    if (!req.user.admin && redirectUri && !redirectUri.startsWith("/"))
-      throw new ForbiddenException("머하새오");
-
+  async loginDiscord(@Request() req) {
     const loginResult = await this.authService.login(req.user);
-    return { url: redirectUri + "?token=" + loginResult.accessToken };
+    return {
+      url:
+        "https://test.kimusoft.dev/auth/callback" +
+        "?token=" +
+        loginResult.accessToken,
+    };
   }
 
   @ApiOperation({
@@ -45,15 +44,9 @@ export class AuthController {
   @UseGuards(AuthGuard("kimustory"))
   @Get("login/kimustory")
   @Redirect()
-  async loginKimustory(
-    @Request() req,
-    @Query("redirect_uri") redirectUri?: string
-  ) {
-    if (!req.user.admin && redirectUri && !redirectUri.startsWith("/"))
-      throw new ForbiddenException("머하새오");
-
+  async loginKimustory(@Request() req) {
     const loginResult = await this.authService.login(req.user);
-    return { url: redirectUri + "?token=" + loginResult.accessToken };
+    return { url: "/login?token=" + loginResult.accessToken };
   }
 
   @ApiOperation({
