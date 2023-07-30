@@ -9,22 +9,22 @@ import {
   Query,
   Redirect,
   Request,
-} from "@nestjs/common";
-import { OAuth2Service } from "./oauth2.service";
+} from "@nestjs/common"
+import { OAuth2Service } from "./oauth2.service"
 import {
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
-} from "@nestjs/swagger";
+} from "@nestjs/swagger"
 import {
   OAuth2AccessTokenDto,
   OAuth2ClientCreateDto,
   OAuth2ClientIdParamDto,
   OAuth2LoginDto,
-} from "./oauth2.dto";
-import { Auth } from "../auth/auth.decorator";
+} from "./oauth2.dto"
+import { Auth } from "../auth/auth.decorator"
 
 @ApiTags("OAuth2")
 @Controller("api/oauth2")
@@ -42,8 +42,8 @@ export class OAuth2Controller {
     @Body()
     { name, description, redirect_uris }: OAuth2ClientCreateDto
   ) {
-    if (!req.user.admin) throw new ForbiddenException("You are not admin");
-    return this.oauthService.createClient(name, description, redirect_uris);
+    if (!req.user.admin) throw new ForbiddenException("You are not admin")
+    return this.oauthService.createClient(name, description, redirect_uris)
   }
 
   @ApiOperation({
@@ -63,8 +63,8 @@ export class OAuth2Controller {
       redirect_uris,
     }: { name?: string; description?: string; redirect_uris?: string[] }
   ) {
-    console.log("ID조회");
-    return this.oauthService.updateClient(id, name, description, redirect_uris);
+    console.log("ID조회")
+    return this.oauthService.updateClient(id, name, description, redirect_uris)
   }
 
   @ApiOperation({
@@ -74,10 +74,10 @@ export class OAuth2Controller {
   @Get("search")
   @Auth({ admin: true })
   async searchOAuthClient() {
-    console.log("검색하장");
-    const results = await this.oauthService.find();
-    console.log(results);
-    return results;
+    console.log("검색하장")
+    const results = await this.oauthService.find()
+    console.log(results)
+    return results
   }
 
   @ApiOperation({
@@ -89,9 +89,9 @@ export class OAuth2Controller {
   @Auth({ admin: true })
   @ApiNotFoundResponse({ description: "Client not found" })
   async getOAuthClient(@Param() { id }: OAuth2ClientIdParamDto) {
-    const oauthClient = await this.oauthService.findClientById(id);
-    if (!oauthClient) throw new ForbiddenException("Client not found");
-    return oauthClient;
+    const oauthClient = await this.oauthService.findClientById(id)
+    if (!oauthClient) throw new ForbiddenException("Client not found")
+    return oauthClient
   }
 
   @ApiOperation({
@@ -105,27 +105,27 @@ export class OAuth2Controller {
   ) {
     const oauthClient = await this.oauthService.findClientBySecret(
       client_secret
-    );
-    if (!oauthClient) throw new ForbiddenException("Invalid client secret");
+    )
+    if (!oauthClient) throw new ForbiddenException("Invalid client secret")
 
-    const oauthCode = await this.oauthService.verifyCode(code);
+    const oauthCode = await this.oauthService.verifyCode(code)
 
-    if (!oauthCode) throw new ForbiddenException("Invalid code");
+    if (!oauthCode) throw new ForbiddenException("Invalid code")
 
     if (oauthCode.clientId !== oauthClient.id)
-      throw new ForbiddenException("Invalid code");
+      throw new ForbiddenException("Invalid code")
 
     const oauthToken = await this.oauthService.createToken(
       oauthCode.userId,
       oauthClient.id
-    );
+    )
 
     return {
       access_token: oauthToken,
       token_type: "Bearer",
       expires_in: "몰라",
       refresh_token: "몰라",
-    };
+    }
   }
 
   @ApiOperation({
@@ -149,19 +149,19 @@ export class OAuth2Controller {
     @Request() req,
     @Query() { client_id, redirect_uri }: OAuth2LoginDto
   ) {
-    const oauthClient = await this.oauthService.findClientById(client_id);
+    const oauthClient = await this.oauthService.findClientById(client_id)
 
-    if (!oauthClient) throw new ForbiddenException("Invalid client id");
+    if (!oauthClient) throw new ForbiddenException("Invalid client id")
 
     if (!oauthClient.redirectUris.includes(redirect_uri))
-      throw new ForbiddenException("Invalid redirect uri");
+      throw new ForbiddenException("Invalid redirect uri")
 
     const oauthCode = await this.oauthService.createCode(
       oauthClient,
       req.user.id
-    );
+    )
 
-    return { url: redirect_uri + "?code=" + oauthCode };
+    return { url: redirect_uri + "?code=" + oauthCode }
   }
 
   @ApiOperation({
@@ -185,13 +185,13 @@ export class OAuth2Controller {
     @Query()
     { client_id, redirect_uri }: OAuth2LoginDto
   ) {
-    const oauthClient = await this.oauthService.findClientById(client_id);
+    const oauthClient = await this.oauthService.findClientById(client_id)
 
-    if (!oauthClient) throw new ForbiddenException("Invalid client id");
+    if (!oauthClient) throw new ForbiddenException("Invalid client id")
 
     if (!oauthClient.redirectUris.includes(redirect_uri))
-      throw new ForbiddenException("Invalid redirect uri");
+      throw new ForbiddenException("Invalid redirect uri")
 
-    return `<h1>${req.user.username}님! ${oauthClient.name} 서드파티를 신용하신다면 아래 버튼을 눌러 주세요!<h1><a href=api/oauth/code">호애앵 믿어요!!!</a>`;
+    return `<h1>${req.user.username}님! ${oauthClient.name} 서드파티를 신용하신다면 아래 버튼을 눌러 주세요!<h1><a href=api/oauth/code">호애앵 믿어요!!!</a>`
   }
 }

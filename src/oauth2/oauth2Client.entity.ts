@@ -4,28 +4,28 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
+} from "typeorm"
 
 @Entity("oauth2_client")
 export class OAuth2ClientEntity {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id: string
 
   @Column()
-  name: string;
+  name: string
 
   @Column({ nullable: true })
-  description: string;
+  description: string
 
   @Column("text", { array: true, default: [] })
-  redirectUris: string[];
+  redirectUris: string[]
 
   @Column()
-  secret: string;
+  secret: string
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
 }

@@ -1,18 +1,18 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { AuthService } from "./auth.service";
-import * as OAuth2Strategy from "passport-oauth2";
-import axios from "axios";
+import { Injectable } from "@nestjs/common"
+import { PassportStrategy } from "@nestjs/passport"
+import { AuthService } from "../auth.service"
+import * as OAuth2Strategy from "passport-oauth2"
+import axios from "axios"
 
-const server = "https://account.kimustory.dev";
+const server = "https://account.kimustory.dev"
 
 interface KimustoryProfile {
-  id: number;
-  social_id: string;
-  username: string;
-  avatar: string;
-  created_at: string;
-  updated_at: string;
+  id: number
+  social_id: string
+  username: string
+  avatar: string
+  created_at: string
+  updated_at: string
 }
 
 @Injectable()
@@ -28,14 +28,14 @@ export class KimustoryStrategy extends PassportStrategy(
       clientSecret: process.env.KIMUSTORY_CLIENT_SECRET,
       callbackURL: process.env.KIMUSTORY_CALLBACK_URL,
       scope: "identify",
-    });
+    })
   }
 
   async userProfile(token: string, done) {
     const res = await axios.get(server + "/api/me", {
       headers: { Authorization: `Bearer ${token}` },
-    });
-    done(null, res.data);
+    })
+    done(null, res.data)
   }
 
   async validate(
@@ -43,13 +43,13 @@ export class KimustoryStrategy extends PassportStrategy(
     refreshToken: string,
     profile: KimustoryProfile
   ) {
-    console.log("까꿍꿍");
-    console.log(profile);
+    console.log("까꿍꿍")
+    console.log(profile)
     return this.authService.validateUser(
       "kimustory",
       profile.id.toString(),
       profile.username,
       profile.avatar
-    );
+    )
   }
 }

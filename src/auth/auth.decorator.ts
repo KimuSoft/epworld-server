@@ -4,17 +4,17 @@ import {
   ExecutionContext,
   ForbiddenException,
   UseGuards,
-} from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+} from "@nestjs/common"
+import { AuthGuard } from "@nestjs/passport"
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
-} from "@nestjs/swagger";
-import { UserEntity } from "../users/user.entity";
+} from "@nestjs/swagger"
+import { UserEntity } from "../users/user.entity"
 
 interface AuthOptions {
-  admin?: boolean;
+  admin?: boolean
 }
 
 export const Auth = (options: AuthOptions = {}) => {
@@ -32,23 +32,23 @@ export const Auth = (options: AuthOptions = {}) => {
           }),
         ]
       : [])
-  );
-};
+  )
+}
 
 export const AdminOnly = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
+    const request = ctx.switchToHttp().getRequest()
     if (!request.user.admin) {
-      throw new ForbiddenException();
+      throw new ForbiddenException()
     }
   }
-);
+)
 
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const req = ctx.switchToHttp().getRequest<EpRequest>();
-    return req.user;
+    const req = ctx.switchToHttp().getRequest<EpRequest>()
+    return req.user
   }
-);
+)
 
-export type EpRequest = Request & { user: UserEntity };
+export type EpRequest = Request & { user: UserEntity }

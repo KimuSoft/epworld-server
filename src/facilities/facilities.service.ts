@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Facility } from "./facility.entity";
+import { Injectable } from "@nestjs/common"
+import { InjectRepository } from "@nestjs/typeorm"
+import { Repository } from "typeorm"
+import { Facility } from "./facility.entity"
 
 @Injectable()
 export class FacilitiesService {
@@ -14,6 +14,6 @@ export class FacilitiesService {
     id: string,
     relations: string[] = []
   ): Promise<Facility | null> {
-    return this.facilityRepository.findOne({ where: { id }, relations });
+    return this.facilityRepository.findOne({ where: { id }, relations })
   }
 }

@@ -1,17 +1,17 @@
-import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { UsersModule } from "./users/users.module";
-import { AuthModule } from "./auth/auth.module";
-import * as process from "process";
-import { FacilitiesModule } from "./facilities/facilities.module";
-import { PlacesModule } from "./places/places.module";
-import { GameModule } from "./game/game.module";
-import { ItemsModule } from "./item/items.module";
-import { APP_PIPE } from "@nestjs/core";
-import { ZodValidationPipe } from "nestjs-zod";
-import { Oauth2Module } from "./oauth2/oauth2.module";
+import { Module } from "@nestjs/common"
+import { AppController } from "./app.controller"
+import { AppService } from "./app.service"
+import { TypeOrmModule } from "@nestjs/typeorm"
+import { UsersModule } from "./users/users.module"
+import { AuthModule } from "./auth/auth.module"
+import * as process from "process"
+import { FacilitiesModule } from "./facilities/facilities.module"
+import { PlacesModule } from "./places/places.module"
+import { GameModule } from "./game/game.module"
+import { ItemsModule } from "./item/items.module"
+import { APP_PIPE } from "@nestjs/core"
+import { ZodValidationPipe } from "nestjs-zod"
+import { Oauth2Module } from "./oauth2/oauth2.module"
 
 @Module({
   imports: [

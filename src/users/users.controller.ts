@@ -9,12 +9,12 @@ import {
   Post,
   Query,
   Request,
-} from "@nestjs/common";
-import { UsersService } from "./users.service";
-import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto";
-import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
-import { Auth, User } from "../auth/auth.decorator";
-import { UserEntity } from "./user.entity";
+} from "@nestjs/common"
+import { UsersService } from "./users.service"
+import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto"
+import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger"
+import { Auth, User } from "../auth/auth.decorator"
+import { UserEntity } from "./user.entity"
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -34,8 +34,8 @@ export class UsersController {
     @Param() { id }: UsersParamDto,
     @Body() { username, avatar }: CreateUserDto
   ) {
-    if (!user.admin) throw new ForbiddenException("You are not admin");
-    return this.usersService.create(id, username, avatar);
+    if (!user.admin) throw new ForbiddenException("You are not admin")
+    return this.usersService.create(id, username, avatar)
   }
 
   // 토큰으로 세션 정보 얻기
@@ -46,7 +46,7 @@ export class UsersController {
   @Auth()
   @Get("me")
   getMe(@Request() req) {
-    return req.user;
+    return req.user
   }
 
   @ApiOperation({
@@ -56,10 +56,10 @@ export class UsersController {
   @Get(":id")
   @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUser(@Param() { id }: UsersParamDto) {
-    const user = await this.usersService.findById(id);
-    if (!user) throw new NotFoundException("User not found");
+    const user = await this.usersService.findById(id)
+    if (!user) throw new NotFoundException("User not found")
 
-    return user;
+    return user
   }
 
   @ApiOperation({
@@ -73,7 +73,7 @@ export class UsersController {
     @Param() { id }: UsersParamDto,
     @Body() { username, avatar }: UpdateUserDto
   ) {
-    return this.usersService.update(id, username, avatar);
+    return this.usersService.update(id, username, avatar)
   }
 
   // @Get(":id/dex")
@@ -89,7 +89,7 @@ export class UsersController {
     @Param() { id }: UsersParamDto,
     @Query("get_deleted") getDeleted = false
   ) {
-    return this.usersService.getUserItems(id, getDeleted);
+    return this.usersService.getUserItems(id, getDeleted)
   }
 
   @ApiOperation({
@@ -99,6 +99,6 @@ export class UsersController {
   @Get(":id/places")
   @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUserPlaces(@Param() { id }: UsersParamDto) {
-    return this.usersService.getUserPlaces(id);
+    return this.usersService.getUserPlaces(id)
   }
 }

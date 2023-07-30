@@ -5,29 +5,29 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { PlaceEntity } from "../places/place.entity";
-import { z } from "zod";
-import { createZodDto } from "nestjs-zod";
+} from "typeorm"
+import { PlaceEntity } from "../places/place.entity"
+import { z } from "zod"
+import { createZodDto } from "nestjs-zod"
 
 @Entity()
 export class Facility {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id: string
 
   @Column()
-  facilityId: string;
+  facilityId: string
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
 
   @ManyToOne(() => PlaceEntity, (place) => place.facilities, {
     onDelete: "CASCADE",
   })
-  place: PlaceEntity;
+  place: PlaceEntity
 
   toJSON() {
     return {
@@ -36,7 +36,7 @@ export class Facility {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       place: this.place?.id || this.place,
-    };
+    }
   }
 }
 
@@ -46,6 +46,6 @@ export const facilitySchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   place: z.string().uuid(),
-});
+})
 
 export class FacilitiesDto extends createZodDto(facilitySchema) {}

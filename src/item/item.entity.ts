@@ -6,34 +6,34 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { UserEntity } from "../users/user.entity";
-import { z } from "zod";
+} from "typeorm"
+import { UserEntity } from "../users/user.entity"
+import { z } from "zod"
 
 @Entity("item")
 export class ItemEntity {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id: string
 
   @Column()
-  itemId: string;
+  itemId: string
 
   @Column()
-  length: number;
+  length: number
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
 
   @DeleteDateColumn()
-  deletedAt: Date | null;
+  deletedAt: Date | null
 
   @ManyToOne(() => UserEntity, (user) => user.items, {
     onDelete: "CASCADE",
   })
-  owner: UserEntity;
+  owner: UserEntity
 
   toJSON() {
     return {
@@ -44,7 +44,7 @@ export class ItemEntity {
       updatedAt: this.updatedAt,
       deletedAt: this.deletedAt,
       owner: this.owner?.id || this.owner,
-    };
+    }
   }
 }
 
@@ -56,4 +56,4 @@ export const itemSchema = z.object({
   updatedAt: z.date(),
   deletedAt: z.date().nullable(),
   owner: z.string().uuid(),
-});
+})

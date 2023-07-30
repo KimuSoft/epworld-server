@@ -1,11 +1,11 @@
-import { Controller, Get, Param, Query, UsePipes } from "@nestjs/common";
-import { FacilitiesService } from "./facilities.service";
-import { ZodValidationPipe } from "nestjs-zod";
-import { FacilitiesParamDto } from "./facilities.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Controller, Get, Param, Query, UsePipes } from "@nestjs/common"
+import { FacilitiesService } from "./facilities.service"
+import { ZodValidationPipe } from "nestjs-zod"
+import { FacilitiesParamDto } from "./facilities.dto"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
 
 // 임시 데이터셋 이후에 따로 빼야 함.
-const FacilityData = [{ id: "PAR", name: "링파링", description: "링링파파링" }];
+const FacilityData = [{ id: "PAR", name: "링파링", description: "링링파파링" }]
 
 @ApiTags("Facilities")
 @Controller("api/facilities")
@@ -18,7 +18,7 @@ export class FacilitiesController {
   })
   @Get(":id")
   async getFacility(@Param() { id }: FacilitiesParamDto) {
-    return this.facilitiesService.findById(id);
+    return this.facilitiesService.findById(id)
   }
 
   @ApiOperation({
@@ -27,7 +27,7 @@ export class FacilitiesController {
   })
   @Get("data/:id")
   async getFacilityData(@Param("id") id: string) {
-    return FacilityData.find((facility) => facility.id === id);
+    return FacilityData.find((facility) => facility.id === id)
   }
 
   @ApiOperation({
@@ -39,6 +39,6 @@ export class FacilitiesController {
     @Query("name") name: string,
     @Query("id") id: string
   ) {
-    return FacilityData.find((facility) => facility.id === id);
+    return FacilityData.find((facility) => facility.id === id)
   }
 }

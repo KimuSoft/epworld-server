@@ -5,41 +5,41 @@ import {
   OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { PlaceEntity } from "../places/place.entity";
-import { ItemEntity } from "../item/item.entity";
+} from "typeorm"
+import { PlaceEntity } from "../places/place.entity"
+import { ItemEntity } from "../item/item.entity"
 
 @Entity("user")
 export class UserEntity {
   @PrimaryColumn()
-  id: string;
+  id: string
 
   @Column()
-  username: string;
+  username: string
 
   @Column({ nullable: true })
-  avatar: string;
+  avatar: string
 
   @Column({ default: 0 })
-  money: number;
+  money: number
 
   @Column({ default: 0 })
-  exp: number;
+  exp: number
 
   @OneToMany(() => PlaceEntity, (place) => place.owner)
-  places: PlaceEntity[];
+  places: PlaceEntity[]
 
   @OneToMany(() => ItemEntity, (item) => item.owner)
-  items: ItemEntity[];
+  items: ItemEntity[]
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
 
   @Column({ default: false })
-  admin: boolean;
+  admin: boolean
 
   toJSON() {
     return {
@@ -53,6 +53,6 @@ export class UserEntity {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       admin: this.admin,
-    };
+    }
   }
 }

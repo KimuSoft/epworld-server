@@ -10,24 +10,24 @@ import {
   Post,
   Request,
   UseGuards,
-} from "@nestjs/common";
-import { PlacesService } from "./places.service";
-import { AuthGuard } from "@nestjs/passport";
+} from "@nestjs/common"
+import { PlacesService } from "./places.service"
+import { AuthGuard } from "@nestjs/passport"
 import {
   BuyPlaceDto,
   CreatePlaceDto,
   DestroyFacilityParamDto,
   PlacesParamDto,
   UpdatePlaceDto,
-} from "./place.dto";
+} from "./place.dto"
 import {
   ApiCreatedResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
-} from "@nestjs/swagger";
-import { FacilitiesDto } from "../facilities/facility.entity";
-import { Auth } from "../auth/auth.decorator";
+} from "@nestjs/swagger"
+import { FacilitiesDto } from "../facilities/facility.entity"
+import { Auth } from "../auth/auth.decorator"
 
 @ApiTags("Places")
 @Controller("api/places")
@@ -44,7 +44,7 @@ export class PlacesController {
     @Request() req,
     @Body() { id, name, ownerId, description }: CreatePlaceDto
   ) {
-    return this.placeService.create(name, ownerId, description, id);
+    return this.placeService.create(name, ownerId, description, id)
   }
 
   @ApiOperation({
@@ -54,10 +54,10 @@ export class PlacesController {
   @Get(":id")
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async getPlace(@Request() req, @Param() { id }: PlacesParamDto) {
-    const place = await this.placeService.findById(id);
-    if (!place) throw new NotFoundException("Place not found");
+    const place = await this.placeService.findById(id)
+    if (!place) throw new NotFoundException("Place not found")
 
-    return place;
+    return place
   }
 
   @ApiOperation({
@@ -73,7 +73,7 @@ export class PlacesController {
     @Param() { id }: PlacesParamDto,
     @Body() { name, description }: UpdatePlaceDto
   ) {
-    return this.placeService.update(id, name, description);
+    return this.placeService.update(id, name, description)
   }
 
   @ApiOperation({
@@ -89,15 +89,15 @@ export class PlacesController {
     @Param() { id }: PlacesParamDto,
     @Body() { userId, amount }: BuyPlaceDto
   ) {
-    let buyerId = req.user.id;
+    let buyerId = req.user.id
 
     // 어드민만 구매자의 ID를 직접 설정할 수 있음. (일반 유저는 자신의 ID로만 가능)
     if (userId && req.user.id !== userId) {
-      if (!req.user.admin) throw new ForbiddenException("You are not admin");
-      buyerId = userId;
+      if (!req.user.admin) throw new ForbiddenException("You are not admin")
+      buyerId = userId
     }
 
-    return this.placeService.buy(buyerId, id, amount);
+    return this.placeService.buy(buyerId, id, amount)
   }
 
   @ApiOperation({
@@ -112,7 +112,7 @@ export class PlacesController {
     @Param() { id }: PlacesParamDto,
     @Body("facility_id") facilityId: string
   ) {
-    return this.placeService.build(id, facilityId);
+    return this.placeService.build(id, facilityId)
   }
 
   @ApiOperation({
@@ -123,7 +123,7 @@ export class PlacesController {
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   @ApiCreatedResponse({ status: 201, type: [FacilitiesDto] })
   async getFacilities(@Request() req, @Param() { id }: PlacesParamDto) {
-    return this.placeService.getFacilities(id);
+    return this.placeService.getFacilities(id)
   }
 
   @ApiOperation({
@@ -143,6 +143,6 @@ export class PlacesController {
     @Request() req,
     @Param() { id, facilityId }: DestroyFacilityParamDto
   ) {
-    return this.placeService.destroyFacility(id, facilityId);
+    return this.placeService.destroyFacility(id, facilityId)
   }
 }

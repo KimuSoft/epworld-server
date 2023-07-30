@@ -8,12 +8,12 @@ import {
   Body,
   ForbiddenException,
   Query,
-} from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
-import { AuthService } from "./auth.service";
-import { LoginDiscordBotDto } from "./auth.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Auth } from "./auth.decorator";
+} from "@nestjs/common"
+import { AuthGuard } from "@nestjs/passport"
+import { AuthService } from "./auth.service"
+import { LoginByDiscordBotDto } from "./dto/auth.dto"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
+import { Auth } from "./auth.decorator"
 
 @ApiTags("Auth")
 @Controller("api/auth")
@@ -28,13 +28,13 @@ export class AuthController {
   @Get("login/discord")
   @Redirect()
   async loginDiscord(@Request() req) {
-    const loginResult = await this.authService.login(req.user);
+    const loginResult = await this.authService.login(req.user)
     return {
       url:
         "https://test.kimusoft.dev/auth/callback" +
         "?token=" +
         loginResult.accessToken,
-    };
+    }
   }
 
   @ApiOperation({
@@ -45,8 +45,8 @@ export class AuthController {
   @Get("login/kimustory")
   @Redirect()
   async loginKimustory(@Request() req) {
-    const loginResult = await this.authService.login(req.user);
-    return { url: "/login?token=" + loginResult.accessToken };
+    const loginResult = await this.authService.login(req.user)
+    return { url: "/login?token=" + loginResult.accessToken }
   }
 
   @ApiOperation({
@@ -59,24 +59,24 @@ export class AuthController {
   async loginDiscordBot(
     @Request() req,
     @Body()
-    { id, username, avatar }: LoginDiscordBotDto
+    { id, username, avatar }: LoginByDiscordBotDto
   ) {
     if (!req.user.admin)
       throw new ForbiddenException(
         "Only administrators can create accounts without validation."
-      );
+      )
 
     const user = await this.authService.validateUser(
       "discord",
       id,
       username,
       avatar
-    );
+    )
 
     return {
       user,
       ...(await this.authService.login(user, true)),
-    };
+    }
   }
 
   @ApiOperation({
@@ -88,23 +88,23 @@ export class AuthController {
   @Post("login/minecraft/bot")
   async loginMinecraft(
     @Request() req,
-    @Body() { id, username, avatar }: LoginDiscordBotDto
+    @Body() { id, username, avatar }: LoginByDiscordBotDto
   ) {
     if (!req.user.admin)
       throw new ForbiddenException(
         "Only administrators can create accounts without validation."
-      );
+      )
 
     const user = await this.authService.validateUser(
       "minecraft",
       id,
       username,
       avatar
-    );
+    )
 
     return {
       user,
       ...(await this.authService.login(user, true)),
-    };
+    }
   }
 }

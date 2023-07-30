@@ -1,5 +1,5 @@
-import { Controller, Get } from "@nestjs/common";
-import { ApiOperation } from "@nestjs/swagger";
+import { Controller, Get } from "@nestjs/common"
+import { ApiOperation } from "@nestjs/swagger"
 
 @Controller()
 export class AppController {
@@ -9,6 +9,6 @@ export class AppController {
   })
   @Get("ping")
   ping() {
-    return "pong";
+    return "pong"
   }
 }

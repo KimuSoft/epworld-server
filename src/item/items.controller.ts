@@ -1,7 +1,7 @@
-import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
-import { ItemsService } from "./items.service";
-import { ItemsParamDto } from "./items.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Controller, Get, NotFoundException, Param } from "@nestjs/common"
+import { ItemsService } from "./items.service"
+import { ItemsParamDto } from "./items.dto"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("Items")
 @Controller("api/items")
@@ -14,8 +14,8 @@ export class ItemsController {
   })
   @Get(":id")
   async getItem(@Param() { id }: ItemsParamDto) {
-    const fish = await this.itemsService.findById(id);
-    if (!fish) throw new NotFoundException("Fish not found");
-    return fish;
+    const fish = await this.itemsService.findById(id)
+    if (!fish) throw new NotFoundException("Fish not found")
+    return fish
   }
 }

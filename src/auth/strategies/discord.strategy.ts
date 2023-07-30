@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { Profile, Strategy } from "passport-discord";
-import { AuthService } from "./auth.service";
+import { Injectable } from "@nestjs/common"
+import { PassportStrategy } from "@nestjs/passport"
+import { Profile, Strategy } from "passport-discord"
+import { AuthService } from "../auth.service"
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
@@ -11,7 +11,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
       scope: ["identify"],
       callbackURL: process.env.DISCORD_CALLBACK_URL!,
-    });
+    })
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
@@ -26,6 +26,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
         : `https://cdn.discordapp.com/embed/avatars/${
             +profile.discriminator % 5
           }.png`
-    );
+    )
   }
 }

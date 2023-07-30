@@ -1,12 +1,12 @@
-import { Module } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { AuthController } from "./auth.controller";
-import { UsersModule } from "../users/users.module";
-import { PassportModule } from "@nestjs/passport";
-import { JwtModule } from "@nestjs/jwt";
-import { DiscordStrategy } from "./discord.strategy";
-import { JwtStrategy } from "./jwt.strategy";
-import { KimustoryStrategy } from "./kimustory.strategy";
+import { Module } from "@nestjs/common"
+import { AuthService } from "./auth.service"
+import { AuthController } from "./auth.controller"
+import { UsersModule } from "../users/users.module"
+import { PassportModule } from "@nestjs/passport"
+import { JwtModule } from "@nestjs/jwt"
+import { DiscordStrategy } from "./strategies/discord.strategy"
+import { JwtStrategy } from "./strategies/jwt.strategy"
+import { KimustoryStrategy } from "./strategies/kimustory.strategy"
 
 @Module({
   imports: [
