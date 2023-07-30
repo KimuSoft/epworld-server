@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common"
-import { AppController } from "./app.controller"
-import { AppService } from "./app.service"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { UsersModule } from "./users/users.module"
 import { AuthModule } from "./auth/auth.module"
@@ -29,9 +27,7 @@ import { Oauth2Module } from "./oauth2/oauth2.module"
     GameModule,
     Oauth2Module,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,

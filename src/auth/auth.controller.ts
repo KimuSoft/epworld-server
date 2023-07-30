@@ -23,6 +23,7 @@ export class AuthController {
   @ApiOperation({
     summary: "디스코드로 로그인",
     description: "디스코드 계정으로 이프에 로그인할 수 있다.",
+    deprecated: true,
   })
   @UseGuards(AuthGuard("discord"))
   @Get("login/discord")
