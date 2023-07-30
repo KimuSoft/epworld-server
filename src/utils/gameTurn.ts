@@ -38,7 +38,7 @@ export const getTurn = (): Turn => {
       break;
     case TurnType.Timing:
       text = _.sample(timingText);
-      time = 1200 * randomNormal({ mean: 1, dev: 0.2 });
+      time = 800 * randomNormal({ mean: 1, dev: 0.2 });
       break;
   }
 
@@ -46,6 +46,16 @@ export const getTurn = (): Turn => {
 };
 
 // TODO: 낚시 난이도(낚시대, 낚시터에 따라 결정)에 따라 텍스트가 달라지게 함
-const normalText = ["언제 낚시찌를 물어주려나..."];
-const fakeText = ["앗! 날씨가 너무 좋다!!!"];
-const timingText = ["앗! 찌에 느낌이!!!"];
+const normalText = [
+  "언제 낚시찌를 물어주려나...",
+  "날씨가 참 좋네...",
+  "흐아암... 졸릴 거 같아",
+  "물 소리가 기분 좋네...",
+];
+const fakeText = [
+  "앗! 날씨가 너무 좋다!!!",
+  "앗 낚시대에 느낌이 안 와!!!",
+  "앗 찌에 느낌이 전혀 없어!!!",
+  "언제 낚이냐구!!!",
+];
+const timingText = ["앗! 찌에 느낌이!!!", "앗 낚시대에 느낌이!!!"];

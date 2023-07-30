@@ -118,7 +118,18 @@ export class GameGateway
 
     // 물고기를 잡는 것에 성공한 경우
     socket.emit("fish:caught", {
-      text: _.sample(["파링", "구이", "로"]) + "을(를) 잡았다!",
+      text:
+        _.sample([
+          "파링",
+          "구이",
+          "로",
+          "먀스냥이",
+          "용용이",
+          "꿔다놓은 보릿자루",
+          "천안의 명물",
+          "파링",
+          "별샤",
+        ]) + "을(를) 잡았다!",
       player: { heart: 100, time: 0 },
     });
 
