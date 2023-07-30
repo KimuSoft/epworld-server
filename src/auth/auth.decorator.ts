@@ -11,7 +11,7 @@ import {
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger"
-import { UserEntity } from "../users/user.entity"
+import { EpRequest } from "../types"
 
 interface AuthOptions {
   admin?: boolean
@@ -50,5 +50,3 @@ export const User = createParamDecorator(
     return req.user
   }
 )
-
-export type EpRequest = Request & { user: UserEntity }

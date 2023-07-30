@@ -60,7 +60,7 @@ export class GameGateway
 
     // 요청하는 낚시터가 존재하는지 확인
     console.log(placeId)
-    const place = await this.placesService.findById(placeId)
+    const place = await this.placesService.findPlaceById(placeId)
     console.log(place)
     if (!place) return socket.emit("fish:error", "낚시터가 존재하지 않습니다.")
 

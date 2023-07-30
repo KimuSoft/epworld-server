@@ -8,6 +8,8 @@ import { Repository } from "typeorm"
 import { PlaceEntity } from "./place.entity"
 import { UserEntity } from "../users/user.entity"
 import { Facility } from "../facilities/facility.entity"
+import { CreatePlaceDto } from "./dto/create-place.dto"
+import { Cron } from "@nestjs/schedule"
 
 @Injectable()
 export class PlacesService {
@@ -20,29 +22,31 @@ export class PlacesService {
     private usersRepository: Repository<UserEntity>
   ) {}
 
-  async create(name: string, ownerId: string, description = "", id?: string) {
+  async createPlace(
+    userId: string,
+    { name, description }: CreatePlaceDto
+  ): Promise<PlaceEntity> {
     const place = new PlaceEntity()
-    if (id) place.id = id
     place.name = name
     place.description = description
 
-    const owner = await this.usersRepository.findOneBy({ id: ownerId })
+    const owner = await this.usersRepository.findOneBy({ id: userId })
     if (!owner) throw new NotFoundException("Owner not found")
     place.owner = owner
 
     return this.placeRepository.save(place)
   }
 
-  async findById(id: string, relations: string[] = []) {
+  async findPlaceById(id: string, relations: string[] = []) {
     return this.placeRepository.findOne({
       where: { id },
       relations,
     })
   }
 
-  async update(id: string, name?: string, description?: string) {
+  async updatePlace(id: string, name?: string, description?: string) {
     // console.log(blocksChange)
-    const place = await this.findById(id)
+    const place = await this.findPlaceById(id)
 
     if (name !== undefined) place.name = name
     if (description !== undefined) place.description = description
@@ -55,7 +59,7 @@ export class PlacesService {
   }
 
   async build(id, facilityId) {
-    const place = await this.findById(id, ["facilities"])
+    const place = await this.findPlaceById(id, ["facilities"])
     if (place.facilities.map((f) => f.facilityId).includes(facilityId))
       throw new Error("AlreadyBuilt")
 
@@ -67,7 +71,7 @@ export class PlacesService {
   }
 
   async buy(userId: string, placeId: string, amount: number) {
-    const place = await this.findById(placeId)
+    const place = await this.findPlaceById(placeId)
     if (!place) throw new NotFoundException("Place not found")
 
     const newOwner = await this.usersRepository.findOneBy({ id: userId })
@@ -98,7 +102,7 @@ export class PlacesService {
   }
 
   async getFacilities(placeId: string) {
-    const place = await this.findById(placeId, ["facilities"])
+    const place = await this.findPlaceById(placeId, ["facilities"])
     return place.facilities
   }
 
@@ -113,5 +117,10 @@ export class PlacesService {
       throw new ForbiddenException({ error: "NotYourFacility" })
 
     return this.facilityRepository.remove(facility)
+  }
+
+  @Cron("0 0 0 * * *")
+  async updatePlaceSeason() {
+    await this.placeRepository.update({}, { season: () => "season + 1" })
   }
 }

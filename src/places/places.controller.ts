@@ -2,24 +2,14 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Request,
-  UseGuards,
 } from "@nestjs/common"
 import { PlacesService } from "./places.service"
-import { AuthGuard } from "@nestjs/passport"
-import {
-  BuyPlaceDto,
-  CreatePlaceDto,
-  DestroyFacilityParamDto,
-  PlacesParamDto,
-  UpdatePlaceDto,
-} from "./place.dto"
 import {
   ApiCreatedResponse,
   ApiOperation,
@@ -28,6 +18,13 @@ import {
 } from "@nestjs/swagger"
 import { FacilitiesDto } from "../facilities/facility.entity"
 import { Auth } from "../auth/auth.decorator"
+import { EpRequest } from "../types"
+import { CreatePlaceDto } from "./dto/create-place.dto"
+import { PlaceIdParamDto } from "./dto/place-id-param.dto"
+import { UpdatePlaceDto } from "./dto/update-place.dto"
+import { BuyPlaceDto } from "./dto/buy-place.dto"
+import { DestroyFacilityParamDto } from "./dto/destroy-facility-param.dto"
+import { PlaceEntity } from "./place.entity"
 
 @ApiTags("Places")
 @Controller("api/places")
@@ -41,10 +38,10 @@ export class PlacesController {
   @Post()
   @Auth({ admin: true })
   async createPlace(
-    @Request() req,
-    @Body() { id, name, ownerId, description }: CreatePlaceDto
-  ) {
-    return this.placeService.create(name, ownerId, description, id)
+    @Request() req: EpRequest,
+    @Body() createPlaceDto: CreatePlaceDto
+  ): Promise<PlaceEntity> {
+    return this.placeService.createPlace(req.user.id, createPlaceDto)
   }
 
   @ApiOperation({
@@ -53,8 +50,8 @@ export class PlacesController {
   })
   @Get(":id")
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
-  async getPlace(@Request() req, @Param() { id }: PlacesParamDto) {
-    const place = await this.placeService.findById(id)
+  async getPlace(@Param() { id }: PlaceIdParamDto): Promise<PlaceEntity> {
+    const place = await this.placeService.findPlaceById(id)
     if (!place) throw new NotFoundException("Place not found")
 
     return place
@@ -69,35 +66,25 @@ export class PlacesController {
   @Patch(":id")
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async updatePlace(
-    @Request() req,
-    @Param() { id }: PlacesParamDto,
+    @Param() { id }: PlaceIdParamDto,
     @Body() { name, description }: UpdatePlaceDto
   ) {
-    return this.placeService.update(id, name, description)
+    return this.placeService.updatePlace(id, name, description)
   }
 
   @ApiOperation({
     summary: "낚시터 매입",
-    description:
-      "낚시터를 매입한다. 구매자의 ID를 넣지 않을 경우 본인을 구매자로 자동 설정한다.",
+    description: "낚시터를 금액만큼 매입한다.",
   })
   @Post(":id/buy")
   @Auth()
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async buyPlace(
-    @Request() req,
-    @Param() { id }: PlacesParamDto,
-    @Body() { userId, amount }: BuyPlaceDto
+    @Request() req: EpRequest,
+    @Param() { id }: PlaceIdParamDto,
+    @Body() { amount }: BuyPlaceDto
   ) {
-    let buyerId = req.user.id
-
-    // 어드민만 구매자의 ID를 직접 설정할 수 있음. (일반 유저는 자신의 ID로만 가능)
-    if (userId && req.user.id !== userId) {
-      if (!req.user.admin) throw new ForbiddenException("You are not admin")
-      buyerId = userId
-    }
-
-    return this.placeService.buy(buyerId, id, amount)
+    return this.placeService.buy(req.user.id, id, amount)
   }
 
   @ApiOperation({
@@ -108,8 +95,7 @@ export class PlacesController {
   @Auth()
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   async buildFacility(
-    @Request() req,
-    @Param() { id }: PlacesParamDto,
+    @Param() { id }: PlaceIdParamDto,
     @Body("facility_id") facilityId: string
   ) {
     return this.placeService.build(id, facilityId)
@@ -122,7 +108,7 @@ export class PlacesController {
   @Get(":id/facilities")
   @ApiParam({ name: "id", description: "낚시터 ID", type: "string" })
   @ApiCreatedResponse({ status: 201, type: [FacilitiesDto] })
-  async getFacilities(@Request() req, @Param() { id }: PlacesParamDto) {
+  async getFacilities(@Param() { id }: PlaceIdParamDto) {
     return this.placeService.getFacilities(id)
   }
 
@@ -139,10 +125,7 @@ export class PlacesController {
     type: "string",
   })
   @ApiCreatedResponse({ status: 201, type: FacilitiesDto })
-  async destroyFacility(
-    @Request() req,
-    @Param() { id, facilityId }: DestroyFacilityParamDto
-  ) {
+  async destroyFacility(@Param() { id, facilityId }: DestroyFacilityParamDto) {
     return this.placeService.destroyFacility(id, facilityId)
   }
 }

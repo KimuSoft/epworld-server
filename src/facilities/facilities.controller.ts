@@ -1,6 +1,5 @@
-import { Controller, Get, Param, Query, UsePipes } from "@nestjs/common"
+import { Controller, Get, Param, Query } from "@nestjs/common"
 import { FacilitiesService } from "./facilities.service"
-import { ZodValidationPipe } from "nestjs-zod"
 import { FacilitiesParamDto } from "./facilities.dto"
 import { ApiOperation, ApiTags } from "@nestjs/swagger"
 

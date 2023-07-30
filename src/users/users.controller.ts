@@ -11,6 +11,7 @@ import { UsersService } from "./users.service"
 import { ApiOperation, ApiTags } from "@nestjs/swagger"
 import { Auth } from "../auth/auth.decorator"
 import { UserIdParamDto } from "./dto/user-id-param.dto"
+import { EpRequest } from "../types"
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -24,7 +25,7 @@ export class UsersController {
   })
   @Auth()
   @Get("me")
-  getMe(@Request() req) {
+  getMe(@Request() req: EpRequest) {
     return req.user
   }
 
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Get(":id/dex")
-  async getUserDex(@Param("id") id: string) {
+  async getUserDex(@Param() { id }: UserIdParamDto) {
     throw new NotImplementedException()
   }
 

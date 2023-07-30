@@ -1,3 +1,6 @@
+import { Request } from "express"
+import { UserEntity } from "./users/user.entity"
+
 export enum Season {
   Spring,
   Summer,
@@ -17,4 +20,8 @@ export enum Biome {
   Bay,
   Fountain,
   Caldera,
+}
+
+export type EpRequest = Request & {
+  user: UserEntity
 }
