@@ -5,6 +5,7 @@ import { AppModule } from "./app.module"
 import { IoAdapter } from "@nestjs/platform-socket.io"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 import { patchNestJsSwagger } from "nestjs-zod"
+import { ValidationPipe } from "@nestjs/common"
 
 export class SocketIoAdapter extends IoAdapter {
   createIOServer(port: number, options?: any): any {
@@ -14,6 +15,8 @@ export class SocketIoAdapter extends IoAdapter {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  app.useGlobalPipes(new ValidationPipe())
 
   patchNestJsSwagger()
   const config = new DocumentBuilder()
@@ -32,4 +35,5 @@ async function bootstrap() {
   app.useWebSocketAdapter(new SocketIoAdapter(app))
   await app.listen(3000)
 }
+
 bootstrap().then()

@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm"
 import { PlaceEntity } from "../places/place.entity"
-import { ItemEntity } from "../item/item.entity"
+import { ItemEntity } from "../items/item.entity"
 
 @Entity("user")
 export class UserEntity {

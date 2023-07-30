@@ -11,10 +11,12 @@ import {
   Request,
 } from "@nestjs/common"
 import { UsersService } from "./users.service"
-import { CreateUserDto, UpdateUserDto, UsersParamDto } from "./users.dto"
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger"
 import { Auth, User } from "../auth/auth.decorator"
 import { UserEntity } from "./user.entity"
+import { UserIdParamDto } from "./dto/user-id-param.dto"
+import { CreateUserDto } from "./dto/create-user.dto"
+import { UpdateUserDto } from "./dto/update-user.dto"
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -28,10 +30,9 @@ export class UsersController {
   })
   @Auth()
   @Post(":id")
-  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async createUser(
     @User() user: UserEntity,
-    @Param() { id }: UsersParamDto,
+    @Param() { id }: UserIdParamDto,
     @Body() { username, avatar }: CreateUserDto
   ) {
     if (!user.admin) throw new ForbiddenException("You are not admin")
@@ -54,8 +55,7 @@ export class UsersController {
     description: "해당 ID의 유저 정보를 불러온다.",
   })
   @Get(":id")
-  @ApiParam({ name: "id", description: "User ID", type: "string" })
-  async getUser(@Param() { id }: UsersParamDto) {
+  async getUser(@Param() { id }: UserIdParamDto) {
     const user = await this.usersService.findById(id)
     if (!user) throw new NotFoundException("User not found")
 
@@ -68,9 +68,8 @@ export class UsersController {
   })
   @Patch(":id")
   @Auth({ admin: true })
-  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async updateUser(
-    @Param() { id }: UsersParamDto,
+    @Param() { id }: UserIdParamDto,
     @Body() { username, avatar }: UpdateUserDto
   ) {
     return this.usersService.update(id, username, avatar)
@@ -84,9 +83,8 @@ export class UsersController {
     description: "유저가 지금까지 낚았던 물고기 정보를 불러온다.",
   })
   @Get(":id/fish")
-  @ApiParam({ name: "id", description: "User ID", type: "string" })
   async getUserFish(
-    @Param() { id }: UsersParamDto,
+    @Param() { id }: UserIdParamDto,
     @Query("get_deleted") getDeleted = false
   ) {
     return this.usersService.getUserItems(id, getDeleted)
@@ -97,8 +95,7 @@ export class UsersController {
     description: "유저가 보유한 낚시터들의 정보를 불러온다.",
   })
   @Get(":id/places")
-  @ApiParam({ name: "id", description: "User ID", type: "string" })
-  async getUserPlaces(@Param() { id }: UsersParamDto) {
+  async getUserPlaces(@Param() { id }: UserIdParamDto) {
     return this.usersService.getUserPlaces(id)
   }
 }
