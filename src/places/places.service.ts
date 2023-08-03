@@ -4,12 +4,13 @@ import {
   NotFoundException,
 } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
+import { Like, Repository } from "typeorm"
 import { PlaceEntity } from "./place.entity"
 import { UserEntity } from "../users/user.entity"
 import { Facility } from "../facilities/facility.entity"
 import { CreatePlaceDto } from "./dto/create-place.dto"
 import { Cron } from "@nestjs/schedule"
+import { SearchPlaceQueryDto } from "./dto/search-place-query.dto"
 
 @Injectable()
 export class PlacesService {
@@ -21,6 +22,18 @@ export class PlacesService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>
   ) {}
+
+  async searchPlaces({
+    q,
+    start,
+    limit,
+  }: SearchPlaceQueryDto): Promise<PlaceEntity[]> {
+    return this.placeRepository.find({
+      where: { name: q ? Like(`%${q}%`) : undefined },
+      skip: start,
+      take: limit,
+    })
+  }
 
   async createPlace(
     userId: string,

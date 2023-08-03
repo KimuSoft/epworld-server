@@ -16,7 +16,7 @@ interface Turn {
   time: number
 }
 
-const timingPmf: pmfObject[] = [
+const timingPmf: pmfObject<TurnType>[] = [
   { object: TurnType.Normal, frequency: 75 },
   { object: TurnType.Fake, frequency: 5 },
   { object: TurnType.Timing, frequency: 20 },

@@ -1,70 +1,85 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  RelationId,
   UpdateDateColumn,
 } from "typeorm"
 import { UserEntity } from "../users/user.entity"
-import { Biome, Season } from "../types"
+import { Biome, PlacePublicity, PlaceType, Season, Weather } from "../types"
 import { Facility } from "../facilities/facility.entity"
 import { v4 } from "uuid"
 import { pmfChoice } from "../utils/random"
-import * as _ from "lodash"
-import { z } from "zod"
+import { sample } from "lodash"
 
 @Entity("place")
 export class PlaceEntity {
+  // 기존 정보
+
   @PrimaryColumn()
   id: string = v4()
 
-  // 낚시터 이름
   @Column()
   name: string
 
-  // 청결도
-  @Column({ default: 0 })
-  cleans: number
-
-  @Column({ default: 0 })
-  exp: number
-
-  @Column({ default: 0 })
-  capital: number
-
-  // 낚시터 설명
   @Column({ default: "" })
   description: string
 
-  // 계절
-  @Column({ default: Season.Spring })
-  season: Season = pickSeason()
+  @Column({ default: PlacePublicity.Private })
+  publicity: PlacePublicity
 
-  // 지형
-  @Column({ default: Biome.Beach })
-  biome: Biome = pickBiome()
+  @Column({ default: PlaceType.Personal })
+  placeType: PlaceType
 
-  // 땅값
-  @Column({ default: 0 })
-  price: number
+  // 기본 정보 (릴레이션)
 
-  // 수수료 (%)
-  @Column({ default: 5 })
-  fee: number
+  @ManyToOne(() => UserEntity, (user) => user.places)
+  owner: UserEntity
 
-  // 날씨
-  @Column({ default: 0 })
-  weather: number
+  @RelationId((place: PlaceEntity) => place.owner)
+  ownerId: string
 
   @OneToMany(() => Facility, (facility) => facility.place, {
     cascade: true,
   })
   facilities: Facility[]
 
-  @ManyToOne(() => UserEntity, (user) => user.places)
-  owner: UserEntity
+  @RelationId((place: PlaceEntity) => place.facilities)
+  facilityIds: string[]
+
+  // 낚시터 스테이터스
+
+  @Column({ default: 0 })
+  exp: number
+
+  @Column({ default: 0 })
+  cleans: number
+
+  @Column({ default: 0 })
+  capital: number
+
+  @Column({ default: 0 })
+  price: number
+
+  @Column({ default: 5 })
+  fee: number
+
+  // 낚시터 환경
+
+  @Column({ default: Biome.Beach })
+  biome: Biome = pickBiome()
+
+  @Column({ default: Season.Spring })
+  season: Season = pickSeason()
+
+  @Column({ default: Weather.Sunny })
+  weather: Weather
+
+  // 생성 및 업데이트 정보
 
   @CreateDateColumn()
   createdAt: Date
@@ -72,61 +87,18 @@ export class PlaceEntity {
   @UpdateDateColumn()
   updatedAt: Date
 
-  toJSON() {
-    return {
-      // ID 및 이름 정보
-      id: this.id,
-      name: this.name,
-      description: this.description,
-
-      // 낚시터 게임 정보
-      cleans: this.cleans,
-      exp: this.exp,
-      capital: this.capital,
-      fee: this.fee,
-
-      season: this.season,
-      biome: this.biome,
-
-      // 낚시터 소유 정보
-      owner: this.owner?.id || this.owner,
-    }
-  }
+  @DeleteDateColumn()
+  deletedAt?: Date
 }
+
 function pickBiome() {
   return pmfChoice([
-    {
-      object: Biome.Beach,
-      frequency: 0.4,
-    },
-    {
-      object: Biome.River,
-      frequency: 0.4,
-    },
-    {
-      object: Biome.Lake,
-      frequency: 0.2,
-    },
-  ]).object as number
+    { object: Biome.Beach, frequency: 0.4 },
+    { object: Biome.River, frequency: 0.4 },
+    { object: Biome.Lake, frequency: 0.2 },
+  ]).object
 }
 
 function pickSeason() {
-  return _.sample([Season.Spring, Season.Summer, Season.Autumn, Season.Winter])
+  return sample([Season.Spring, Season.Summer, Season.Autumn, Season.Winter])
 }
-
-export const placeSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  cleans: z.number(),
-  exp: z.number(),
-  capital: z.number(),
-  description: z.string(),
-  season: z.nativeEnum(Season),
-  biome: z.nativeEnum(Biome),
-  price: z.number(),
-  fee: z.number(),
-  // weather: z.nativeEnum(Wheather),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  owner: z.string().uuid(),
-})

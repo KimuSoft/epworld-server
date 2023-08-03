@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
 } from "@nestjs/common"
 import { PlacesService } from "./places.service"
@@ -25,11 +26,21 @@ import { UpdatePlaceDto } from "./dto/update-place.dto"
 import { BuyPlaceDto } from "./dto/buy-place.dto"
 import { DestroyFacilityParamDto } from "./dto/destroy-facility-param.dto"
 import { PlaceEntity } from "./place.entity"
+import { SearchPlaceQueryDto } from "./dto/search-place-query.dto"
 
 @ApiTags("Places")
 @Controller("api/places")
 export class PlacesController {
   constructor(private readonly placeService: PlacesService) {}
+
+  @ApiOperation({
+    summary: "낚시터 검색",
+    description: "낚시터를 검색합니다.",
+  })
+  @Get()
+  async searchPlaces(@Query() searchPlaceDto: SearchPlaceQueryDto) {
+    return this.placeService.searchPlaces(searchPlaceDto)
+  }
 
   @ApiOperation({
     summary: "낚시터 생성",

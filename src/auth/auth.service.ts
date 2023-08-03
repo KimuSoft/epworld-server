@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common"
-import { UsersService } from "src/users/users.service"
 import { UserEntity } from "../users/user.entity"
 import { JwtService } from "@nestjs/jwt"
+import { InjectRepository } from "@nestjs/typeorm"
+import { Repository } from "typeorm"
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
     private jwtService: JwtService
   ) {}
 
@@ -17,11 +19,26 @@ export class AuthService {
     avatar: string
   ): Promise<UserEntity> {
     const userId = `${accountType}:${id}`
-    const user = await this.usersService.findById(userId)
-    if (user) return this.usersService.update(userId, username, avatar)
+    const user = await this.usersRepository.findOneBy({ id: userId })
 
-    // 처음 가입한 유저의 경우 새로 생성
-    return this.usersService.create(userId, username, avatar)
+    if (user) {
+      user.username = username
+      user.avatar = avatar
+      return this.usersRepository.save(user)
+    } else {
+      // 처음 가입한 유저의 경우 새로 생성
+      return this.createUser(userId, username, avatar)
+    }
+  }
+
+  private async createUser(userId: string, username: string, avatar: string) {
+    const user = new UserEntity()
+    user.id = userId
+    user.username = username
+    user.avatar = avatar
+
+    await this.usersRepository.save(user)
+    return user
   }
 
   async login(user: UserEntity, isBot = false) {

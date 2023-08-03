@@ -2,18 +2,18 @@ export const randomPercentage = (percentage: number) => {
   return Math.random() < percentage
 }
 
-export interface pmfObject {
-  object: any
+export interface pmfObject<T> {
+  object: T
   frequency: number
 }
 
-export interface ExtendedPmfObject extends pmfObject {
+export interface ExtendedPmfObject<T> extends pmfObject<T> {
   accumulate: number
   percentage: number
   frequencySum: number
 }
 
-export function pmfChoice(pmfObjects: pmfObject[]): pmfObject {
+export function pmfChoice<T>(pmfObjects: pmfObject<T>[]): pmfObject<T> {
   const extPmfObjects = pmfAnalyze(pmfObjects)
   const random = Math.random() * extPmfObjects[0].frequencySum
   for (const obj of extPmfObjects) {
@@ -22,16 +22,18 @@ export function pmfChoice(pmfObjects: pmfObject[]): pmfObject {
   return extPmfObjects[0]
 }
 
-export function pmfAnalyze(pmfObjects: pmfObject[]): ExtendedPmfObject[] {
+export function pmfAnalyze<T>(
+  pmfObjects: pmfObject<T>[]
+): ExtendedPmfObject<T>[] {
   let frequencySum = 0
   for (const obj of pmfObjects) {
     frequencySum += obj.frequency
-    ;(obj as ExtendedPmfObject).accumulate = frequencySum
+    ;(obj as ExtendedPmfObject<T>).accumulate = frequencySum
   }
 
   for (const obj of pmfObjects) {
-    ;(obj as ExtendedPmfObject).frequencySum = frequencySum
-    ;(obj as ExtendedPmfObject).percentage = obj.frequency / frequencySum
+    ;(obj as ExtendedPmfObject<T>).frequencySum = frequencySum
+    ;(obj as ExtendedPmfObject<T>).percentage = obj.frequency / frequencySum
   }
-  return pmfObjects as ExtendedPmfObject[]
+  return pmfObjects as ExtendedPmfObject<T>[]
 }

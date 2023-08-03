@@ -5,10 +5,10 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from "typeorm"
 import { UserEntity } from "../users/user.entity"
-import { z } from "zod"
 
 @Entity("item")
 export class ItemEntity {
@@ -18,8 +18,22 @@ export class ItemEntity {
   @Column()
   itemId: string
 
+  // 메타데이터
+
   @Column()
-  length: number
+  length?: number
+
+  // 주인 정보 (릴레이션)
+
+  @ManyToOne(() => UserEntity, (user) => user.items, {
+    onDelete: "CASCADE",
+  })
+  owner: UserEntity
+
+  @RelationId((item: ItemEntity) => item.owner)
+  ownerId: string
+
+  // 생성 및 삭제일시
 
   @CreateDateColumn()
   createdAt: Date
@@ -29,31 +43,4 @@ export class ItemEntity {
 
   @DeleteDateColumn()
   deletedAt: Date | null
-
-  @ManyToOne(() => UserEntity, (user) => user.items, {
-    onDelete: "CASCADE",
-  })
-  owner: UserEntity
-
-  toJSON() {
-    return {
-      id: this.id,
-      itemId: this.itemId,
-      length: this.length,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      deletedAt: this.deletedAt,
-      owner: this.owner?.id || this.owner,
-    }
-  }
 }
-
-export const itemSchema = z.object({
-  id: z.string().uuid(),
-  itemId: z.string(),
-  length: z.number().positive(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullable(),
-  owner: z.string().uuid(),
-})

@@ -8,10 +8,12 @@ import {
   Request,
 } from "@nestjs/common"
 import { UsersService } from "./users.service"
-import { ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { Auth } from "../auth/auth.decorator"
 import { UserIdParamDto } from "./dto/user-id-param.dto"
 import { EpRequest } from "../types"
+import { UserDto } from "./dto/user.dto"
+import { PlaceEntity } from "../places/place.entity"
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -25,7 +27,7 @@ export class UsersController {
   })
   @Auth()
   @Get("me")
-  getMe(@Request() req: EpRequest) {
+  async getMe(@Request() req: EpRequest): Promise<UserDto> {
     return req.user
   }
 
@@ -33,8 +35,9 @@ export class UsersController {
     summary: "유저 정보 조회",
     description: "해당 ID의 유저 정보를 불러온다.",
   })
+  @ApiOkResponse({ type: UserDto })
   @Get(":id")
-  async getUser(@Param() { id }: UserIdParamDto) {
+  async getUser(@Param() { id }: UserIdParamDto): Promise<UserDto> {
     const user = await this.usersService.findById(id)
     if (!user) throw new NotFoundException()
 
@@ -42,7 +45,7 @@ export class UsersController {
   }
 
   @Get(":id/dex")
-  async getUserDex(@Param() { id }: UserIdParamDto) {
+  async getUserDex() {
     throw new NotImplementedException()
   }
 
@@ -62,8 +65,9 @@ export class UsersController {
     summary: "유저가 보유한 낚시터 조회",
     description: "유저가 보유한 낚시터들의 정보를 불러온다.",
   })
+  @ApiOkResponse({ type: PlaceEntity, isArray: true })
   @Get(":id/places")
-  async getUserPlaces(@Param() { id }: UserIdParamDto) {
+  async getUserPlaces(@Param() { id }: UserIdParamDto): Promise<PlaceEntity[]> {
     return this.usersService.getUserPlaces(id)
   }
 }

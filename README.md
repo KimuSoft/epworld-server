@@ -18,3 +18,7 @@ yarn typeorm migration:run -d datasource.js
 ```shell
 docker-compose -f docker-compose.dev.yml up -d --build
 ```
+
+
+## 게임 시스템
+### 

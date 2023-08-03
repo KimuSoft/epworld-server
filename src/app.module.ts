@@ -10,6 +10,7 @@ import { ItemsModule } from "./items/items.module"
 import { APP_PIPE } from "@nestjs/core"
 import { ZodValidationPipe } from "nestjs-zod"
 import { Oauth2Module } from "./oauth2/oauth2.module"
+import { EventEmitterModule } from "@nestjs/event-emitter"
 
 @Module({
   imports: [
@@ -17,8 +18,8 @@ import { Oauth2Module } from "./oauth2/oauth2.module"
       type: "postgres",
       url: process.env.DB_URL,
       autoLoadEntities: true,
-      logging: "all",
     }),
+    EventEmitterModule.forRoot(),
     AuthModule,
     UsersModule,
     PlacesModule,

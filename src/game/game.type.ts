@@ -3,6 +3,7 @@ import { UserEntity } from "../users/user.entity"
 
 export interface EpSocket extends Socket {
   user: UserEntity
+  placeId: string | null
 }
 
 export interface VerifiedData {
