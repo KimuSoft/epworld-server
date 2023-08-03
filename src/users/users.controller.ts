@@ -14,6 +14,8 @@ import { UserIdParamDto } from "./dto/user-id-param.dto"
 import { EpRequest } from "../types"
 import { UserDto } from "./dto/user.dto"
 import { PlaceEntity } from "../places/place.entity"
+import { ItemDto } from "../items/dto/item.dto"
+import { PlaceDto } from "../places/dto/place.dto"
 
 @ApiTags("Users")
 @Controller("api/users")
@@ -49,25 +51,34 @@ export class UsersController {
     throw new NotImplementedException()
   }
 
-  @ApiOperation({
-    summary: "유저가 낚았던 물고기 조회",
-    description: "유저가 지금까지 낚았던 물고기 정보를 불러온다.",
-  })
-  @Get(":id/fish")
-  async getUserFish(
-    @Param() { id }: UserIdParamDto,
-    @Query("get_deleted") getDeleted = false
-  ) {
-    return this.usersService.getUserItems(id, getDeleted)
-  }
+  // @ApiOperation({
+  //   summary: "유저가 낚았던 물고기 조회",
+  //   description: "유저가 지금까지 낚았던 물고기 정보를 불러온다.",
+  // })
+  // @Get(":id/fish")
+  // async getUserFish(
+  //   @Param() { id }: UserIdParamDto,
+  //   @Query("get_deleted") getDeleted = false
+  // ) {
+  //   return this.usersService.getUserItems(id, getDeleted)
+  // }
 
   @ApiOperation({
     summary: "유저가 보유한 낚시터 조회",
     description: "유저가 보유한 낚시터들의 정보를 불러온다.",
   })
-  @ApiOkResponse({ type: PlaceEntity, isArray: true })
+  @ApiOkResponse({ type: PlaceDto, isArray: true })
   @Get(":id/places")
   async getUserPlaces(@Param() { id }: UserIdParamDto): Promise<PlaceEntity[]> {
     return this.usersService.getUserPlaces(id)
+  }
+
+  @ApiOperation({
+    summary: "유저가 보유한 아이템 조회",
+  })
+  @ApiOkResponse({ type: ItemDto, isArray: true })
+  @Get(":id/items")
+  async getUserItems(@Param() { id }: UserIdParamDto): Promise<ItemDto[]> {
+    return this.usersService.getUserItems(id)
   }
 }

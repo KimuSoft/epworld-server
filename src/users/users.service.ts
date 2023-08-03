@@ -45,10 +45,10 @@ export class UsersService {
     return this.usersRepository.save(user)
   }
 
-  async getUserItems(id: string, getDeleted = false) {
+  async getUserItems(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ["fish"],
+      relations: ["items"],
     })
     return user.items
   }
