@@ -3,7 +3,7 @@ import { PlacesService } from "./places.service"
 import { PlacesController } from "./places.controller"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { PlaceEntity } from "./place.entity"
-import { Facility } from "../facilities/facility.entity"
+import { Facility } from "../facilities/entities/facility.entity"
 import { UserEntity } from "../users/user.entity"
 
 @Module({

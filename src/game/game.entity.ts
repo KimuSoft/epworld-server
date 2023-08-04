@@ -31,14 +31,18 @@ export class GameEntity {
     this.state = GameState.NotTiming
   }
 
-  async catchFish(): Promise<boolean> {
+  async catchFish(): Promise<GameResult> {
     if (![GameState.NotTiming, GameState.Timing].includes(this.state))
       throw new Error("잘못된 상태에서의 접근입니다.")
 
-    const isCaught = this.state === GameState.Timing
+    const isSuccess = this.state === GameState.Timing
     this.state = GameState.End
 
-    return isCaught
+    return {
+      isSuccess,
+      fishRarity: this.fishRarity,
+      turnCount: this.turnCount,
+    }
   }
 
   async progress() {
@@ -97,6 +101,12 @@ export class GameEntity {
       placeId: this.placeId,
     }
   }
+}
+
+export interface GameResult {
+  isSuccess: boolean
+  fishRarity: Rarity | null
+  turnCount: number
 }
 
 export interface GameOption {

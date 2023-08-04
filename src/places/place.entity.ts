@@ -11,7 +11,7 @@ import {
 } from "typeorm"
 import { UserEntity } from "../users/user.entity"
 import { Biome, PlacePublicity, PlaceType, Season, Weather } from "../types"
-import { Facility } from "../facilities/facility.entity"
+import { Facility } from "../facilities/entities/facility.entity"
 import { v4 } from "uuid"
 import { pmfChoice } from "../utils/random"
 import { sample } from "lodash"

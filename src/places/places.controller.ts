@@ -17,7 +17,7 @@ import {
   ApiParam,
   ApiTags,
 } from "@nestjs/swagger"
-import { FacilitiesDto } from "../facilities/facility.entity"
+import { FacilitiesDto } from "../facilities/entities/facility.entity"
 import { Auth } from "../auth/auth.decorator"
 import { EpRequest } from "../types"
 import { CreatePlaceDto } from "./dto/create-place.dto"

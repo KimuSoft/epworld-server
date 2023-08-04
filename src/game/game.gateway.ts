@@ -131,11 +131,12 @@ export class GameGateway
 
   @SubscribeMessage("game:catch")
   async gameCatch(socket: EpSocket) {
-    const { turn } = await this.gameService.gameCatch(socket.user.id)
+    const { gameResult, caughtFish } = await this.gameService.gameCatch(socket.user.id)
 
-    if (!turn) return
 
-    socket.emit("game:catch", turn)
+    socket.emit("game:catch", {gameResult, caughtFish})
+
+    // TODO: 쓰레기 낚임 이벤트
   }
 
   @SubscribeMessage("fish:start")

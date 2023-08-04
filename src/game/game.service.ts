@@ -85,15 +85,23 @@ export class GameService {
     const game = await this.gameRepository.get(userId)
     if (!game) throw new Error("Game not started")
 
-    const turn = await game.catchFish()
+    const gameResult = await game.catchFish()
+
+    let caughtFish = null
+
+    // const place = await this.findPlaceById(game.placeId)
+    // if (!place) throw new Error("Place not found")
+
+    if (gameResult.isSuccess) {
+      caughtFish = {
+        itemId: "TEST",
+        length: 300,
+      }
+    }
 
     await this.gameRepository.remove(game.id)
 
-    if (!turn) return null
-
-    await this.gameRepository.save(game)
-
-    return { game, turn }
+    return { game, gameResult, caughtFish }
   }
 
   async findPlaceById(placeId: string): Promise<PlaceEntity | null> {
