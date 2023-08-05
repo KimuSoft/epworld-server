@@ -18,6 +18,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter"
       type: "postgres",
       url: process.env.DB_URL,
       autoLoadEntities: true,
+      logging: true,
     }),
     EventEmitterModule.forRoot(),
     AuthModule,

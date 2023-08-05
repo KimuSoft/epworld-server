@@ -23,16 +23,18 @@ export class PlacesService {
     private usersRepository: Repository<UserEntity>
   ) {}
 
-  async searchPlaces({
-    q,
-    start,
-    limit,
-  }: SearchPlaceQueryDto): Promise<PlaceEntity[]> {
-    return this.placeRepository.find({
-      where: { name: q ? Like(`%${q}%`) : undefined },
-      skip: start,
-      take: limit,
-    })
+  async searchPlaces(
+    { q, start, limit }: SearchPlaceQueryDto,
+    userId: string
+  ): Promise<PlaceEntity[]> {
+    // 해당 문자열이 포함되어 있고, (publicity가 2보다 낮거나, ownerId가 본인의 id인 경우)
+    return this.placeRepository.query(
+      `SELECT * FROM place WHERE ${
+        q ? `"name" LIKE '%${q.replace(/'"\*/g, "")}%' AND` : ""
+      } (publicity < 2 OR "ownerId" = '${userId}') LIMIT ${
+        limit || 20
+      } OFFSET ${start || 0}`
+    )
   }
 
   async createPlace(

@@ -5,19 +5,16 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from "@nestjs/websockets"
 import { Server, Socket } from "socket.io"
 import { GameService } from "./game.service"
 import { EpSocket } from "./game.type"
-import { getTurn, TurnType } from "../utils/gameTurn"
 import { EventEmitter2, OnEvent } from "@nestjs/event-emitter"
-import { sample } from "lodash"
 import { plainToInstance } from "class-transformer"
 import { validate } from "class-validator"
 import { JoinPlaceDto } from "./dto/join-place.dto"
-
-const playingUser = new Set()
-const clickedUser = new Set()
+import { GameEventType } from "./dto/game-event.dto"
 
 @WebSocketGateway({ cors: { origin: "*" } })
 export class GameGateway
@@ -111,128 +108,70 @@ export class GameGateway
     if (!socket.placeId)
       return socket.emit("error", "낚시터에 참여하지 않았습니다.")
 
-    await this.gameService.gameStart(socket.user.id, socket.placeId)
+    const game = await this.gameService.gameStart(
+      socket.user.id,
+      socket.placeId
+    )
+
+    if (!game) throw new WsException("게임을 시작할 수 없습니다.")
 
     socket.emit("game:start")
     await this.sleep(2500)
     this.eventEmitter.emit("game:progress", socket)
   }
 
+  @SubscribeMessage("game:cancel")
+  async cancelGame(socket: EpSocket) {
+    try {
+      await this.gameService.cancelGame(socket.user.id)
+    } catch (e) {
+      throw new WsException(e.message)
+    }
+    socket.emit("game:cancel")
+  }
+
   @OnEvent("game:progress")
   async gameProgress(socket: EpSocket) {
-    const { turn } = await this.gameService.gameProgress(socket.user.id)
+    const turnEventDto = await this.gameService.gameProgress(socket.user.id)
+    if (!turnEventDto) return
 
-    if (!turn) return
+    const time = turnEventDto.time
 
-    socket.emit("game:event", turn)
-    await this.sleep(turn.time)
+    // 일반 낚시 상태에서는 시간 정보를 숨김
+    if (turnEventDto.eventType === GameEventType.Normal) {
+      turnEventDto.time = undefined
+    }
+
+    socket.emit("game:event", turnEventDto)
+
+    await this.sleep(time)
+    this.eventEmitter.emit("game:progress", socket)
+  }
+
+  @SubscribeMessage("game:continue")
+  async continueGame(socket: EpSocket) {
+    const game = await this.gameService.continueGame(socket.user.id)
+    if (!game) return
+
     this.eventEmitter.emit("game:progress", socket)
   }
 
   @SubscribeMessage("game:catch")
   async gameCatch(socket: EpSocket) {
-    const { gameResult, caughtFish } = await this.gameService.gameCatch(socket.user.id)
+    const catchResult = await this.gameService.gameCatch(socket.user.id)
 
+    if (!catchResult) return
 
-    socket.emit("game:catch", {gameResult, caughtFish})
+    if (!catchResult.gameResult.isSuccess) {
+      return socket.emit("game:fail", { gameResult: catchResult.gameResult })
+    }
+
+    socket.emit("game:success", {
+      gameResult: catchResult.gameResult,
+      catchResult: catchResult.caughtFish,
+    })
 
     // TODO: 쓰레기 낚임 이벤트
-  }
-
-  @SubscribeMessage("fish:start")
-  async fishStart(_socket: EpSocket, { placeId }: { placeId: string }) {
-    const socket = await this.gameService.refreshUserData(_socket)
-
-    // 이미 낚시를 진행 중인지 확인
-    if (playingUser.has(socket.id)) {
-      return socket.emit("fish:error", "이미 낚시중입니다.")
-    }
-
-    // 요청하는 낚시터가 존재하는지 확인
-    console.log(placeId)
-    const place = await this.gameService.findPlaceById(placeId)
-    console.log(place)
-    if (!place) return socket.emit("fish:error", "낚시터가 존재하지 않습니다.")
-
-    playingUser.add(socket.id)
-
-    console.log("낚시 시작")
-    socket.emit("fish:start", {
-      player: {
-        heart: 100,
-        time: 0,
-      },
-    })
-
-    // 시작 대기 시간 1초
-    await this.sleep(1000)
-
-    let time = 0
-
-    // 낚시 루프 시작
-    while (true) {
-      // 일정 턴 이상이 지난 경우
-      if (time >= 10) {
-        socket.emit("fish:timeout", "시간 초과... 낚시 종료됨.")
-        playingUser.delete(socket.id)
-        return
-      }
-
-      const turn = getTurn()
-
-      socket.emit("fish:event", {
-        text: turn.text,
-        emphasize: turn.type !== TurnType.Normal,
-        player: { time },
-      })
-
-      // 시간 기다림
-      await this.sleep(turn.time)
-
-      // 만약 유저가 타이밍 안에 클릭을 한 경우
-      if (clickedUser.has(socket.id)) {
-        clickedUser.delete(socket.id)
-
-        // 잘못된 타이밍에 클릭한 경우
-        if (turn.type !== TurnType.Timing) {
-          socket.emit("fish:fail", "잘못된 타이밍입니다. 낚시 종료됨.")
-          playingUser.delete(socket.id)
-          return
-        }
-
-        break
-      }
-
-      time++
-    }
-
-    // 물고기를 잡는 것에 성공한 경우
-    socket.emit("fish:caught", {
-      text:
-        sample([
-          "파링",
-          "구이",
-          "로",
-          "먀스냥이",
-          "용용이",
-          "꿔다놓은 보릿자루",
-          "천안의 명물",
-          "파링",
-          "별샤",
-        ]) + "을(를) 잡았다!",
-      player: { heart: 100, time: 0 },
-    })
-
-    // 게임 종료
-    playingUser.delete(socket.id)
-    console.log("낚시 종료")
-  }
-
-  @SubscribeMessage("fish:catch")
-  async catch(client: Socket) {
-    if (!playingUser.has(client.id)) return
-    console.log("낚시 클릭")
-    clickedUser.add(client.id)
   }
 
   /* 정보 갱신 요청 */
@@ -266,9 +205,9 @@ export class GameGateway
   // 같은 방에 있는 모든 유저에게 갱신을 요청함
   private async refreshPlaceData(socket: EpSocket) {
     const placeId = socket.placeId
-    if (!placeId) throw new Error("낚시터에 참여하지 않았습니다.")
+    if (!placeId) throw new WsException("낚시터에 참여하지 않았습니다.")
     const place = await this.gameService.findPlaceById(placeId)
-    if (!place) throw new Error("낚시터 정보를 찾을 수 없습니다.")
+    if (!place) throw new WsException("낚시터 정보를 찾을 수 없습니다.")
 
     console.log("낚시터 정보 갱신", placeId)
     this.server.to(placeId).emit("refresh:place", place)
@@ -276,7 +215,7 @@ export class GameGateway
 
   private async refreshUserData(socket: EpSocket) {
     const user = await this.gameService.findUserById(socket.user.id)
-    if (!user) throw new Error("유저 정보를 찾을 수 없습니다.")
+    if (!user) throw new WsException("유저 정보를 찾을 수 없습니다.")
     socket.user = user
     socket.emit("refresh:user", user)
   }

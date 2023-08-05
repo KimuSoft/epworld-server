@@ -1,14 +1,20 @@
 import { Injectable } from "@nestjs/common"
 import { AuthService } from "../auth/auth.service"
-import { Socket } from "socket.io"
 import { EpSocket, VerifiedData } from "./game.type"
 import { PlaceEntity } from "../places/place.entity"
 import { InjectRepository } from "@nestjs/typeorm"
 import { UserEntity } from "../users/user.entity"
 import { Repository } from "typeorm"
 import { GameRepository } from "./game.repository"
-import { GameEntity } from "./game.entity"
+import {
+  GameEntity,
+  GameResult,
+  GameState,
+  InvalidStateError,
+  TurnType,
+} from "./game.entity"
 import { PlacePublicity } from "../types"
+import { GameEventDto, GameEventType } from "./dto/game-event.dto"
 
 @Injectable()
 export class GameService {
@@ -59,8 +65,7 @@ export class GameService {
   }
 
   async gameStart(userId: string, placeId: string) {
-    if (await this.gameRepository.get(userId))
-      throw new Error("Game already started")
+    if (await this.gameRepository.get(userId)) return null
 
     const game = new GameEntity({ id: userId, placeId })
     await game.start()
@@ -69,23 +74,71 @@ export class GameService {
     return game
   }
 
-  async gameProgress(userId: string) {
+  async cancelGame(userId: string) {
     const game = await this.gameRepository.get(userId)
     if (!game) throw new Error("Game not started")
 
+    await this.gameRepository.remove(game.id)
+  }
+
+  async continueGame(userId: string) {
+    const game = await this.gameRepository.get(userId)
+    if (!game) throw new Error("Game not started")
+
+    try {
+      await game.continue()
+    } catch (e) {
+      if (e instanceof InvalidStateError) return null
+      throw e
+    }
+    return this.gameRepository.save(game)
+  }
+
+  async gameProgress(userId: string): Promise<GameEventDto> {
+    const game = await this.gameRepository.get(userId)
+    if (!game) return null
+
+    if (game.state === GameState.WaitingForContinue) {
+      await this.gameRepository.remove(game.id)
+      return null
+    }
+
     const turn = await game.progress()
-    if (!turn) return { game }
+    if (!turn) return null
 
     await this.gameRepository.save(game)
 
-    return { game, turn }
+    let eventType: GameEventType
+
+    switch (turn.turnType) {
+      case TurnType.Continue:
+        eventType = GameEventType.Continue
+        break
+      default:
+        eventType = GameEventType.Normal
+    }
+
+    return {
+      turn: game.turnCount,
+      text: turn.text,
+      eventType,
+      time: turn.time,
+      effectStrength: turn.effectStrength,
+    }
   }
 
   async gameCatch(userId: string) {
     const game = await this.gameRepository.get(userId)
     if (!game) throw new Error("Game not started")
 
-    const gameResult = await game.catchFish()
+    let gameResult: GameResult
+
+    try {
+      gameResult = await game.catchFish()
+    } catch (e) {
+      if (e instanceof InvalidStateError) return null
+      throw e
+    }
 
     let caughtFish = null
 

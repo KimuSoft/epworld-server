@@ -38,8 +38,12 @@ export class PlacesController {
     description: "낚시터를 검색합니다.",
   })
   @Get()
-  async searchPlaces(@Query() searchPlaceDto: SearchPlaceQueryDto) {
-    return this.placeService.searchPlaces(searchPlaceDto)
+  @Auth()
+  async searchPlaces(
+    @Request() req: EpRequest,
+    @Query() searchPlaceDto: SearchPlaceQueryDto
+  ) {
+    return this.placeService.searchPlaces(searchPlaceDto, req.user?.id)
   }
 
   @ApiOperation({

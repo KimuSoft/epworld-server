@@ -25,15 +25,14 @@ export class GameEntity {
   }
 
   async start() {
-    if (this.state !== GameState.Idle)
-      throw new Error("이미 시작된 게임입니다.")
+    if (this.state !== GameState.Idle) throw new InvalidStateError()
 
     this.state = GameState.NotTiming
   }
 
   async catchFish(): Promise<GameResult> {
     if (![GameState.NotTiming, GameState.Timing].includes(this.state))
-      throw new Error("잘못된 상태에서의 접근입니다.")
+      throw new InvalidStateError()
 
     const isSuccess = this.state === GameState.Timing
     this.state = GameState.End
@@ -45,12 +44,31 @@ export class GameEntity {
     }
   }
 
+  async continue() {
+    if (this.state !== GameState.WaitingForContinue)
+      throw new InvalidStateError()
+
+    this.state = GameState.NotTiming
+    return this.progress()
+  }
+
   async progress() {
     if (this.state === GameState.End) return null
     if (![GameState.NotTiming, GameState.Timing].includes(this.state))
-      throw new Error("잘못된 상태입니다.")
+      throw new InvalidStateError()
 
     this.turnCount++
+
+    // 10턴에 한 번씩 계속 할 것인지 물어봄
+    if (!(this.turnCount % 10)) {
+      this.state = GameState.WaitingForContinue
+      return {
+        turnType: TurnType.Continue,
+        text: "",
+        time: 10000,
+        effectStrength: 0,
+      }
+    }
 
     const turnType = pmfChoice(timingPmf)
 
@@ -63,6 +81,8 @@ export class GameEntity {
     // 3: 강한 이펙트 ( 보통 희귀한 물고기 )
     // 4: 매우 강한 이펙트 ( 보통 전설 이상 물고기 )
     let effectStrength: number
+
+    this.state = GameState.NotTiming
 
     switch (turnType.object) {
       case TurnType.Normal:
@@ -82,6 +102,7 @@ export class GameEntity {
         time = 800 * randomNormal({ mean: 1, dev: 0.2 })
         effectStrength = Math.round(randomNormal({ mean: 3, dev: 1 }))
         this.fishRarity = pmfChoice(rarityPmf).object
+        this.state = GameState.Timing
         break
     }
 
@@ -103,6 +124,12 @@ export class GameEntity {
   }
 }
 
+export class InvalidStateError extends Error {
+  constructor() {
+    super("잘못된 상태입니다.")
+  }
+}
+
 export interface GameResult {
   isSuccess: boolean
   fishRarity: Rarity | null
@@ -121,6 +148,7 @@ export enum GameState {
   Idle,
   NotTiming,
   Timing,
+  WaitingForContinue,
   End,
 }
 
@@ -128,6 +156,7 @@ export enum TurnType {
   Normal,
   Fake,
   Timing,
+  Continue,
 }
 
 const timingPmf: pmfObject<TurnType>[] = [
