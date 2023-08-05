@@ -6,6 +6,7 @@ const games = new Map<string, GameEntity>()
 @Injectable()
 export class GameRepository {
   async save(game: GameEntity): Promise<GameEntity> {
+    console.info(`Game ${game.id} saved`)
     games.set(game.id, game)
     return game
   }
@@ -14,7 +15,12 @@ export class GameRepository {
     return games.get(gameId)
   }
 
+  async findByUserId(userId: string): Promise<GameEntity> {
+    return Array.from(games.values()).find((game) => game.userId === userId)
+  }
+
   async remove(gameId: string): Promise<void> {
     games.delete(gameId)
+    console.info(`Game ${gameId} removed`)
   }
 }

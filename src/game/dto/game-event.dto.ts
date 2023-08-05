@@ -41,4 +41,5 @@ export enum GameEventType {
 
   // OX 질문 결과 이벤트
   QuestionResult,
+  Timeout,
 }

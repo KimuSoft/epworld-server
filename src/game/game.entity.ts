@@ -10,6 +10,7 @@ const randomNormal = require("random-normal")
 export class GameEntity {
   id: string
   placeId: string
+  userId: string
 
   turnCount: number
   state: GameState
@@ -17,6 +18,7 @@ export class GameEntity {
 
   constructor(option: GameOption) {
     this.placeId = option.placeId
+    this.userId = option.userId
 
     this.id = option.id || Math.random().toString()
     this.turnCount = option.turnCount ?? 0
@@ -42,6 +44,13 @@ export class GameEntity {
       fishRarity: this.fishRarity,
       turnCount: this.turnCount,
     }
+  }
+
+  async end() {
+    if ([GameState.End, GameState.Idle].includes(this.state))
+      throw new InvalidStateError()
+
+    this.state = GameState.End
   }
 
   async continue() {
@@ -87,19 +96,19 @@ export class GameEntity {
     switch (turnType.object) {
       case TurnType.Normal:
         text = sample(normalTexts)
-        time = 3000 * randomNormal({ mean: 1, dev: 0.3 })
+        time = Math.round(3000 * randomNormal({ mean: 1, dev: 0.3 }))
         effectStrength = Math.round(randomNormal({ mean: 0, dev: 1 }))
         this.fishRarity = null
         break
       case TurnType.Fake:
         text = sample(fakeTexts)
-        time = 1200 * randomNormal({ mean: 1, dev: 0.2 })
+        time = Math.round(1200 * randomNormal({ mean: 1, dev: 0.2 }))
         effectStrength = Math.round(randomNormal({ mean: 2, dev: 2 }))
         this.fishRarity = null
         break
       case TurnType.Timing:
         text = sample(timingTexts)
-        time = 800 * randomNormal({ mean: 1, dev: 0.2 })
+        time = Math.round(800 * randomNormal({ mean: 1, dev: 0.2 }))
         effectStrength = Math.round(randomNormal({ mean: 3, dev: 1 }))
         this.fishRarity = pmfChoice(rarityPmf).object
         this.state = GameState.Timing
@@ -138,10 +147,11 @@ export interface GameResult {
 
 export interface GameOption {
   id?: string
+  userId: string
+  placeId: string
   turnCount?: number
   state?: GameState
   fishRarity?: Rarity | null
-  placeId: string
 }
 
 export enum GameState {

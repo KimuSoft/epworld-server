@@ -15,6 +15,7 @@ import { plainToInstance } from "class-transformer"
 import { validate } from "class-validator"
 import { JoinPlaceDto } from "./dto/join-place.dto"
 import { GameEventType } from "./dto/game-event.dto"
+import { GameResult } from "./game.entity"
 
 @WebSocketGateway({ cors: { origin: "*" } })
 export class GameGateway
@@ -107,6 +108,7 @@ export class GameGateway
   async gameStart(socket: EpSocket) {
     if (!socket.placeId)
       return socket.emit("error", "낚시터에 참여하지 않았습니다.")
+    if (socket.gameId) throw new WsException("이미 게임 중입니다.")
 
     const game = await this.gameService.gameStart(
       socket.user.id,
@@ -115,6 +117,7 @@ export class GameGateway
 
     if (!game) throw new WsException("게임을 시작할 수 없습니다.")
 
+    socket.gameId = game.id
     socket.emit("game:start")
     await this.sleep(2500)
     this.eventEmitter.emit("game:progress", socket)
@@ -127,29 +130,36 @@ export class GameGateway
     } catch (e) {
       throw new WsException(e.message)
     }
+
+    socket.gameId = undefined
     socket.emit("game:cancel")
   }
 
   @OnEvent("game:progress")
   async gameProgress(socket: EpSocket) {
-    const turnEventDto = await this.gameService.gameProgress(socket.user.id)
-    if (!turnEventDto) return
+    if (!socket.gameId) return console.log("game:progress", "no game")
 
-    const time = turnEventDto.time
+    const { event, timeout } = await this.gameService.gameProgress(
+      socket.gameId
+    )
+    if (!event) return
 
-    // 일반 낚시 상태에서는 시간 정보를 숨김
-    if (turnEventDto.eventType === GameEventType.Normal) {
-      turnEventDto.time = undefined
+    if (event.eventType === GameEventType.Timeout) {
+      socket.gameId = undefined
+      socket.emit("game:cancel")
+      return
     }
 
-    socket.emit("game:event", turnEventDto)
+    socket.emit("game:event", event)
 
-    await this.sleep(time)
+    await this.sleep(timeout)
     this.eventEmitter.emit("game:progress", socket)
   }
 
   @SubscribeMessage("game:continue")
   async continueGame(socket: EpSocket) {
+    if (!socket.gameId) throw new WsException("낚시 중이 아닙니다.")
+
     const game = await this.gameService.continueGame(socket.user.id)
     if (!game) return
 
@@ -158,14 +168,25 @@ export class GameGateway
 
   @SubscribeMessage("game:catch")
   async gameCatch(socket: EpSocket) {
-    const catchResult = await this.gameService.gameCatch(socket.user.id)
+    if (!socket.gameId) throw new WsException("낚시 중이 아닙니다.")
+
+    let catchResult: { gameResult: GameResult; caughtFish: any }
+    try {
+      catchResult = await this.gameService.gameCatch(socket.gameId)
+    } catch (e) {
+      throw new WsException(e.message)
+    }
 
     if (!catchResult) return
 
+    socket.gameId = undefined
+
+    // 낚시에 실패한 경우
     if (!catchResult.gameResult.isSuccess) {
       return socket.emit("game:fail", { gameResult: catchResult.gameResult })
     }
 
+    // 낚시에 성공한 경우
     socket.emit("game:success", {
       gameResult: catchResult.gameResult,
       catchResult: catchResult.caughtFish,

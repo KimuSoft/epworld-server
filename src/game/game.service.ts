@@ -15,6 +15,7 @@ import {
 } from "./game.entity"
 import { PlacePublicity } from "../types"
 import { GameEventDto, GameEventType } from "./dto/game-event.dto"
+import { WsException } from "@nestjs/websockets"
 
 @Injectable()
 export class GameService {
@@ -65,9 +66,9 @@ export class GameService {
   }
 
   async gameStart(userId: string, placeId: string) {
-    if (await this.gameRepository.get(userId)) return null
+    if (await this.gameRepository.findByUserId(userId)) return null
 
-    const game = new GameEntity({ id: userId, placeId })
+    const game = new GameEntity({ userId, placeId })
     await game.start()
     await this.gameRepository.save(game)
 
@@ -75,15 +76,15 @@ export class GameService {
   }
 
   async cancelGame(userId: string) {
-    const game = await this.gameRepository.get(userId)
-    if (!game) throw new Error("Game not started")
+    const game = await this.gameRepository.findByUserId(userId)
+    if (!game) throw new WsException("Game not started")
 
     await this.gameRepository.remove(game.id)
   }
 
   async continueGame(userId: string) {
-    const game = await this.gameRepository.get(userId)
-    if (!game) throw new Error("Game not started")
+    const game = await this.gameRepository.findByUserId(userId)
+    if (!game) throw new WsException("Game not started")
 
     try {
       await game.continue()
@@ -94,17 +95,26 @@ export class GameService {
     return this.gameRepository.save(game)
   }
 
-  async gameProgress(userId: string): Promise<GameEventDto> {
-    const game = await this.gameRepository.get(userId)
-    if (!game) return null
+  async gameProgress(
+    gameId: string
+  ): Promise<{ event: GameEventDto; timeout: number }> {
+    const game = await this.gameRepository.get(gameId)
+    if (!game) return { event: null, timeout: 0 }
 
     if (game.state === GameState.WaitingForContinue) {
       await this.gameRepository.remove(game.id)
-      return null
+      return {
+        event: {
+          turn: 0,
+          text: "",
+          eventType: GameEventType.Timeout,
+          effectStrength: 0,
+        },
+        timeout: 0,
+      }
     }
 
     const turn = await game.progress()
-    if (!turn) return null
 
     await this.gameRepository.save(game)
 
@@ -119,16 +129,19 @@ export class GameService {
     }
 
     return {
-      turn: game.turnCount,
-      text: turn.text,
-      eventType,
-      time: turn.time,
-      effectStrength: turn.effectStrength,
+      event: {
+        turn: game.turnCount,
+        text: turn.text,
+        eventType,
+        time: turn.effectStrength <= 0 ? undefined : turn.time,
+        effectStrength: turn.effectStrength,
+      },
+      timeout: turn.time,
     }
   }
 
-  async gameCatch(userId: string) {
-    const game = await this.gameRepository.get(userId)
+  async gameCatch(gameId: string) {
+    const game = await this.gameRepository.get(gameId)
     if (!game) throw new Error("Game not started")
 
     let gameResult: GameResult
